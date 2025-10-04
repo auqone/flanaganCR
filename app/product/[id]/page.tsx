@@ -5,25 +5,7 @@ import BuyNowButton from "@/components/BuyNowButton";
 import ReviewSection from "@/components/ReviewSection";
 import Footer from "@/components/Footer";
 import { Review, ReviewStats } from "@/types/review";
-
-async function getProduct(id: string) {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    const res = await fetch(`${baseUrl}/api/products`, {
-      cache: 'no-store'
-    });
-
-    if (!res.ok) {
-      return null;
-    }
-
-    const products = await res.json();
-    return products.find((p: any) => p.id === id);
-  } catch (error) {
-    console.error('Failed to fetch product:', error);
-    return null;
-  }
-}
+import { products } from "@/lib/products";
 
 // Sample reviews data
 const sampleReviews: { [key: string]: Review[] } = {
@@ -77,7 +59,7 @@ export default async function ProductPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const product = await getProduct(id);
+  const product = products.find((p) => p.id === id);
 
   if (!product) {
     notFound();
