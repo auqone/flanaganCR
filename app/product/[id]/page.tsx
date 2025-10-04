@@ -6,225 +6,24 @@ import ReviewSection from "@/components/ReviewSection";
 import Footer from "@/components/Footer";
 import { Review, ReviewStats } from "@/types/review";
 
-// Hot AliExpress trending products for 2025 - matches ProductGrid
-const products = [
-  {
-    id: "1",
-    name: "Wireless Bluetooth Earbuds Pro",
-    price: 29.99,
-    image: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=800&h=800&fit=crop",
-    category: "Electronics & Gadgets",
-    rating: 4.7,
-    reviews: 2847,
-    description: "Top-selling wireless earbuds with seamless connectivity, deep bass, and 24-hour battery life. Perfect for music lovers aged 18-35.",
-    features: [
-      "Bluetooth 5.0 connectivity",
-      "24-hour battery life with charging case",
-      "Deep bass and crystal-clear audio",
-      "IPX5 water resistant",
-      "Touch controls",
-    ],
-    inStock: true,
-  },
-  {
-    id: "2",
-    name: "Fitness Tracker Smart Watch",
-    price: 45.99,
-    image: "https://images.unsplash.com/photo-1575311373937-040b8e1fd5b6?w=800&h=800&fit=crop",
-    category: "Electronics & Gadgets",
-    rating: 4.6,
-    reviews: 1923,
-    description: "Must-have fitness tracker with heart rate monitoring, sleep tracking, and 7-day battery. Ideal for health enthusiasts aged 25-50.",
-    features: [
-      "Heart rate monitoring 24/7",
-      "Sleep quality tracking",
-      "7-day battery life",
-      "100+ sport modes",
-      "Water resistant up to 50m",
-    ],
-    inStock: true,
-  },
-  {
-    id: "3",
-    name: "Portable Electric Lunch Box",
-    price: 34.99,
-    image: "https://images.unsplash.com/photo-1585032226651-759b368d7246?w=800&h=800&fit=crop",
-    category: "Home & Kitchen",
-    rating: 4.5,
-    reviews: 1456,
-    description: "Highly trending electric lunch box that heats your meal anywhere. Perfect for office workers and students.",
-    features: [
-      "Heats food in 15-20 minutes",
-      "Removable stainless steel container",
-      "110V and 12V car adapter included",
-      "1.5L capacity",
-      "BPA-free materials",
-    ],
-    inStock: true,
-  },
-  {
-    id: "4",
-    name: "Home Walking Pad Treadmill",
-    price: 189.99,
-    image: "https://images.unsplash.com/photo-1576678927484-cc907957088c?w=800&h=800&fit=crop",
-    category: "Sports & Fitness",
-    rating: 4.8,
-    reviews: 3421,
-    description: "Ultra-popular compact walking pad perfect for home offices. Interest has skyrocketed over the past two years!",
-    features: [
-      "Ultra-slim 5-inch profile",
-      "0.5-6 km/h walking speed",
-      "LED display with remote control",
-      "Quiet motor under 50dB",
-      "Supports up to 220 lbs",
-    ],
-    inStock: true,
-  },
-  {
-    id: "5",
-    name: "Rain Cloud Aroma Diffuser",
-    price: 39.99,
-    image: "https://images.unsplash.com/photo-1603006905003-be475563bc59?w=800&h=800&fit=crop",
-    category: "Home & Garden",
-    rating: 4.7,
-    reviews: 2156,
-    description: "Mesmerizing water drip design creates calming vibes. Prime for TikTok and Instagram content!",
-    features: [
-      "Unique rain cloud design",
-      "300ml water capacity",
-      "7 LED color options",
-      "Auto shut-off safety feature",
-      "Whisper-quiet operation",
-    ],
-    inStock: true,
-  },
-  {
-    id: "6",
-    name: "Resistance Bands Set (5pcs)",
-    price: 19.99,
-    image: "https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=800&h=800&fit=crop",
-    category: "Sports & Fitness",
-    rating: 4.6,
-    reviews: 1678,
-    description: "Fitness staple for home workouts and rehab. Lightweight, packable, and cheap shipping costs make it a winner.",
-    features: [
-      "5 resistance levels (10-50 lbs)",
-      "Natural latex material",
-      "Includes door anchor and handles",
-      "Portable carry bag",
-      "Workout guide included",
-    ],
-    inStock: true,
-  },
-  {
-    id: "7",
-    name: "Mini Thermal Printer",
-    price: 49.99,
-    image: "https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?w=800&h=800&fit=crop",
-    category: "Electronics & Gadgets",
-    rating: 4.5,
-    reviews: 1234,
-    description: "Viral on TikTok! Compact printer for stickers, labels, and checklists. Popular with students and journaling enthusiasts.",
-    features: [
-      "Bluetooth wireless printing",
-      "2-3 hour battery life",
-      "300 DPI resolution",
-      "Compatible with iOS and Android",
-      "Inkless thermal printing",
-    ],
-    inStock: true,
-  },
-  {
-    id: "8",
-    name: "Yoga Exercise Mat Premium",
-    price: 24.99,
-    image: "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=800&h=800&fit=crop",
-    category: "Sports & Fitness",
-    rating: 4.4,
-    reviews: 2891,
-    description: "Top seller thanks to the booming home workout trend. Yoga mat market set to hit $17.3 billion by 2025!",
-    features: [
-      "6mm extra thick cushioning",
-      "Non-slip textured surface",
-      "72 x 24 inch size",
-      "Eco-friendly TPE material",
-      "Includes carrying strap",
-    ],
-    inStock: true,
-  },
-  {
-    id: "9",
-    name: "Waterproof Mattress Cover",
-    price: 29.99,
-    image: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&h=800&fit=crop",
-    category: "Home & Garden",
-    rating: 4.6,
-    reviews: 1987,
-    description: "Currently one of the best sellers on AliExpress. Clearly fulfilling a significant market need for mattress protection.",
-    features: [
-      "100% waterproof barrier",
-      "Breathable and noiseless",
-      "Hypoallergenic protection",
-      "Deep pocket fits up to 18 inches",
-      "Machine washable",
-    ],
-    inStock: true,
-  },
-  {
-    id: "10",
-    name: "Compression Socks (3 Pairs)",
-    price: 16.99,
-    image: "https://images.unsplash.com/photo-1586350977771-b3b0abd50c82?w=800&h=800&fit=crop",
-    category: "Health & Wellness",
-    rating: 4.5,
-    reviews: 1543,
-    description: "Can be marketed in multiple niches: sports apparel, medical, and fashion. Potential profit of $7+",
-    features: [
-      "20-30 mmHg compression",
-      "Moisture-wicking fabric",
-      "Arch support",
-      "Available in multiple sizes",
-      "Reduces swelling and fatigue",
-    ],
-    inStock: true,
-  },
-  {
-    id: "11",
-    name: "Cat Scratching Pad Lounge",
-    price: 22.99,
-    image: "https://images.unsplash.com/photo-1545249390-6bdfa286032f?w=800&h=800&fit=crop",
-    category: "Home & Garden",
-    rating: 4.7,
-    reviews: 2345,
-    description: "Satisfies cats' natural scratching instincts. Interest has been steadily increasing over the past decade!",
-    features: [
-      "Curved lounge design",
-      "Durable corrugated cardboard",
-      "Includes catnip",
-      "Reversible for extended use",
-      "Protects furniture",
-    ],
-    inStock: true,
-  },
-  {
-    id: "12",
-    name: "Personalized Photo Necklace",
-    price: 14.99,
-    image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&h=800&fit=crop",
-    category: "Jewelry & Accessories",
-    rating: 4.8,
-    reviews: 3156,
-    description: "Customize with photos, text, or logos. Perfect for Christmas and Valentine's Day gifting!",
-    features: [
-      "Stainless steel chain",
-      "Water resistant",
-      "Custom photo projection",
-      "Adjustable 18-22 inch chain",
-      "Gift box included",
-    ],
-    inStock: true,
-  },
-];
+async function getProduct(id: string) {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const res = await fetch(`${baseUrl}/api/products`, {
+      cache: 'no-store'
+    });
+
+    if (!res.ok) {
+      return null;
+    }
+
+    const products = await res.json();
+    return products.find((p: any) => p.id === id);
+  } catch (error) {
+    console.error('Failed to fetch product:', error);
+    return null;
+  }
+}
 
 // Sample reviews data
 const sampleReviews: { [key: string]: Review[] } = {
@@ -233,42 +32,41 @@ const sampleReviews: { [key: string]: Review[] } = {
       id: "r1",
       productId: "1",
       userId: "u1",
-      userName: "Sarah Johnson",
+      userName: "Jennifer M.",
       rating: 5,
-      title: "Best earbuds I've ever owned!",
-      comment: "The sound quality is incredible and they fit perfectly. Battery life is exactly as advertised. Highly recommend!",
-      images: ["https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=200&h=200&fit=crop"],
+      title: "Life-changing information!",
+      comment: "This book opened my eyes to the importance of micro-organisms in health. Very well researched and easy to understand. Highly recommend for anyone interested in natural healing.",
       verified: true,
-      helpful: 24,
-      notHelpful: 2,
-      createdAt: new Date("2025-09-15"),
+      helpful: 8,
+      notHelpful: 0,
+      createdAt: new Date("2025-09-20"),
     },
     {
       id: "r2",
       productId: "1",
       userId: "u2",
-      userName: "Mike Chen",
-      rating: 4,
-      title: "Great value for money",
-      comment: "Very good earbuds for the price. Only minor complaint is they sometimes slip out during intense workouts.",
+      userName: "David K.",
+      rating: 5,
+      title: "Excellent resource",
+      comment: "Great book with practical advice. O'Neill really knows his stuff. Already implementing some of the strategies.",
       verified: true,
-      helpful: 12,
-      notHelpful: 1,
-      createdAt: new Date("2025-09-10"),
+      helpful: 5,
+      notHelpful: 0,
+      createdAt: new Date("2025-09-15"),
     },
   ],
 };
 
 const sampleStats: { [key: string]: ReviewStats } = {
   "1": {
-    averageRating: 4.7,
-    totalReviews: 2847,
+    averageRating: 4.8,
+    totalReviews: 25,
     ratingDistribution: {
-      5: 2100,
-      4: 550,
-      3: 150,
-      2: 35,
-      1: 12,
+      5: 20,
+      4: 3,
+      3: 1,
+      2: 1,
+      1: 0,
     },
   },
 };
@@ -279,7 +77,7 @@ export default async function ProductPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const product = products.find((p) => p.id === id);
+  const product = await getProduct(id);
 
   if (!product) {
     notFound();
@@ -318,17 +116,19 @@ export default async function ProductPage({
                 {product.description}
               </p>
 
-              <div className="mt-6">
-                <h3 className="font-semibold mb-2">Features:</h3>
-                <ul className="space-y-2">
-                  {product.features.map((feature, index) => (
-                    <li key={index} className="flex items-start gap-2 text-sm">
-                      <span className="text-green-500">✓</span>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              {product.features && product.features.length > 0 && (
+                <div className="mt-6">
+                  <h3 className="font-semibold mb-2">Features:</h3>
+                  <ul className="space-y-2">
+                    {product.features.map((feature: string, index: number) => (
+                      <li key={index} className="flex items-start gap-2 text-sm">
+                        <span className="text-green-500">✓</span>
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               <div className="mt-8 flex flex-col gap-3">
                 <AddToCartButton product={product} />
