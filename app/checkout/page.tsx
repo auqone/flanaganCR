@@ -73,7 +73,7 @@ export default function CheckoutPage() {
               <div className="rounded-lg border border-[var(--border)] p-6">
                 <h2 className="text-xl font-bold mb-4">Secure Checkout</h2>
                 <p className="text-gray-600 mb-4">
-                  You will be redirected to Stripe's secure checkout page to complete your payment.
+                  You will be redirected to Stripe&apos;s secure checkout page to complete your payment.
                 </p>
                 <div className="flex items-center gap-2 text-sm text-gray-500">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
