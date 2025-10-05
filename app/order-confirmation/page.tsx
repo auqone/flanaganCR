@@ -1,9 +1,19 @@
+"use client";
+
 import Link from "next/link";
 import { CheckCircle } from "lucide-react";
 import Footer from "@/components/Footer";
+import { useCartStore } from "@/store/cartStore";
+import { useEffect } from "react";
 
 export default function OrderConfirmationPage() {
+  const { clearCart } = useCartStore();
   const orderNumber = Math.random().toString(36).substring(2, 10).toUpperCase();
+
+  useEffect(() => {
+    // Clear cart on successful order
+    clearCart();
+  }, [clearCart]);
 
   return (
     <div className="min-h-screen flex flex-col">

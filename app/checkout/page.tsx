@@ -2,35 +2,52 @@
 
 import { useCartStore } from "@/store/cartStore";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { loadStripe } from "@stripe/stripe-js";
 import Footer from "@/components/Footer";
 
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+
 export default function CheckoutPage() {
-  const router = useRouter();
-  const { items, getTotalPrice, clearCart } = useCartStore();
-  const [formData, setFormData] = useState({
-    email: "",
-    firstName: "",
-    lastName: "",
-    address: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    country: "",
-    cardNumber: "",
-    expiryDate: "",
-    cvv: "",
-  });
+  const { items, getTotalPrice } = useCartStore();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // In production, this would process the payment
-    clearCart();
-    router.push("/order-confirmation");
-  };
+  const handleCheckout = async () => {
+    try {
+      setLoading(true);
+      setError("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+      // Create checkout session
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ items }),
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        setError(data.error);
+        setLoading(false);
+        return;
+      }
+
+      // Redirect to Stripe Checkout
+      const stripe = await stripePromise;
+      const { error } = await stripe!.redirectToCheckout({
+        sessionId: data.sessionId,
+      });
+
+      if (error) {
+        setError(error.message || "An error occurred");
+        setLoading(false);
+      }
+    } catch (err: any) {
+      setError(err.message || "An error occurred");
+      setLoading(false);
+    }
   };
 
   if (items.length === 0) {
@@ -52,196 +69,34 @@ export default function CheckoutPage() {
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">
-            <form onSubmit={handleSubmit} className="space-y-8">
-              <section className="rounded-lg border border-[var(--border)] p-6">
-                <h2 className="text-xl font-bold mb-4">Contact Information</h2>
-                <div className="space-y-4">
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium mb-2">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      required
-                      value={formData.email}
-                      onChange={handleChange}
-                      className="w-full rounded-md border border-[var(--border)] bg-transparent px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
-                    />
-                  </div>
+            <div className="space-y-6">
+              <div className="rounded-lg border border-[var(--border)] p-6">
+                <h2 className="text-xl font-bold mb-4">Secure Checkout</h2>
+                <p className="text-gray-600 mb-4">
+                  You will be redirected to Stripe's secure checkout page to complete your payment.
+                </p>
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                  </svg>
+                  <span>Secured by Stripe</span>
                 </div>
-              </section>
+              </div>
 
-              <section className="rounded-lg border border-[var(--border)] p-6">
-                <h2 className="text-xl font-bold mb-4">Shipping Address</h2>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <div>
-                    <label htmlFor="firstName" className="block text-sm font-medium mb-2">
-                      First Name
-                    </label>
-                    <input
-                      type="text"
-                      id="firstName"
-                      name="firstName"
-                      required
-                      value={formData.firstName}
-                      onChange={handleChange}
-                      className="w-full rounded-md border border-[var(--border)] bg-transparent px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="lastName" className="block text-sm font-medium mb-2">
-                      Last Name
-                    </label>
-                    <input
-                      type="text"
-                      id="lastName"
-                      name="lastName"
-                      required
-                      value={formData.lastName}
-                      onChange={handleChange}
-                      className="w-full rounded-md border border-[var(--border)] bg-transparent px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label htmlFor="address" className="block text-sm font-medium mb-2">
-                      Address
-                    </label>
-                    <input
-                      type="text"
-                      id="address"
-                      name="address"
-                      required
-                      value={formData.address}
-                      onChange={handleChange}
-                      className="w-full rounded-md border border-[var(--border)] bg-transparent px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="city" className="block text-sm font-medium mb-2">
-                      City
-                    </label>
-                    <input
-                      type="text"
-                      id="city"
-                      name="city"
-                      required
-                      value={formData.city}
-                      onChange={handleChange}
-                      className="w-full rounded-md border border-[var(--border)] bg-transparent px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="state" className="block text-sm font-medium mb-2">
-                      State
-                    </label>
-                    <input
-                      type="text"
-                      id="state"
-                      name="state"
-                      required
-                      value={formData.state}
-                      onChange={handleChange}
-                      className="w-full rounded-md border border-[var(--border)] bg-transparent px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="zipCode" className="block text-sm font-medium mb-2">
-                      ZIP Code
-                    </label>
-                    <input
-                      type="text"
-                      id="zipCode"
-                      name="zipCode"
-                      required
-                      value={formData.zipCode}
-                      onChange={handleChange}
-                      className="w-full rounded-md border border-[var(--border)] bg-transparent px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="country" className="block text-sm font-medium mb-2">
-                      Country
-                    </label>
-                    <select
-                      id="country"
-                      name="country"
-                      required
-                      value={formData.country}
-                      onChange={handleChange}
-                      className="w-full rounded-md border border-[var(--border)] bg-transparent px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
-                    >
-                      <option value="">Select a country</option>
-                      <option value="US">United States</option>
-                      <option value="CA">Canada</option>
-                      <option value="UK">United Kingdom</option>
-                      <option value="AU">Australia</option>
-                    </select>
-                  </div>
+              {error && (
+                <div className="rounded-lg border border-red-500 bg-red-50 dark:bg-red-950 p-4">
+                  <p className="text-red-700 dark:text-red-300">{error}</p>
                 </div>
-              </section>
-
-              <section className="rounded-lg border border-[var(--border)] p-6">
-                <h2 className="text-xl font-bold mb-4">Payment Information</h2>
-                <div className="space-y-4">
-                  <div>
-                    <label htmlFor="cardNumber" className="block text-sm font-medium mb-2">
-                      Card Number
-                    </label>
-                    <input
-                      type="text"
-                      id="cardNumber"
-                      name="cardNumber"
-                      required
-                      placeholder="1234 5678 9012 3456"
-                      value={formData.cardNumber}
-                      onChange={handleChange}
-                      className="w-full rounded-md border border-[var(--border)] bg-transparent px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label htmlFor="expiryDate" className="block text-sm font-medium mb-2">
-                        Expiry Date
-                      </label>
-                      <input
-                        type="text"
-                        id="expiryDate"
-                        name="expiryDate"
-                        required
-                        placeholder="MM/YY"
-                        value={formData.expiryDate}
-                        onChange={handleChange}
-                        className="w-full rounded-md border border-[var(--border)] bg-transparent px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="cvv" className="block text-sm font-medium mb-2">
-                        CVV
-                      </label>
-                      <input
-                        type="text"
-                        id="cvv"
-                        name="cvv"
-                        required
-                        placeholder="123"
-                        value={formData.cvv}
-                        onChange={handleChange}
-                        className="w-full rounded-md border border-[var(--border)] bg-transparent px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </section>
+              )}
 
               <button
-                type="submit"
-                className="w-full rounded-md bg-[var(--accent)] px-8 py-3 font-medium text-[var(--background)] hover:opacity-90 transition-opacity"
+                onClick={handleCheckout}
+                disabled={loading}
+                className="w-full rounded-md bg-[var(--accent)] px-8 py-3 font-medium text-[var(--background)] hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Place Order
+                {loading ? "Processing..." : "Proceed to Payment"}
               </button>
-            </form>
+            </div>
           </div>
 
           <div className="lg:col-span-1">
