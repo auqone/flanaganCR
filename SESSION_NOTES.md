@@ -1,14 +1,75 @@
 # Sellery Development Session Notes
-**Last Updated:** October 4, 2025
+**Last Updated:** October 5, 2025
 
-## Current Status: ✅ PRODUCTION READY
+## Current Status: ✅ PAYMENTS WORKING - EMAIL SETUP IN PROGRESS
 
 ### Live URLs
 - **Main Site:** https://sellery-eight.vercel.app
 - **GitHub Repo:** https://github.com/auqone/sellery
 - **Vercel Project:** nicks-projects-2d008226/sellery
+- **Stripe Dashboard:** https://dashboard.stripe.com/test/dashboard
+- **Resend Dashboard:** https://resend.com/
 
-### What We Accomplished Today
+---
+
+## Session: October 5, 2025 - Stripe Payments & Email Confirmations
+
+### What We Accomplished
+
+#### 1. ✅ Stripe Payment Integration (WORKING)
+- Installed Stripe SDK (`stripe` and `@stripe/stripe-js`)
+- Created `/api/checkout` route that creates Stripe Checkout sessions
+- Updated checkout page to redirect to Stripe's hosted checkout
+- Fixed environment variable issues (removed newline characters)
+- **Test Purchases Work!** Using card `4242 4242 4242 4242`
+- Customers successfully redirected to order confirmation page
+
+#### 2. ✅ Email Confirmation Setup (CONFIGURED, NEEDS TESTING)
+- Installed Resend SDK for email sending
+- Created Stripe webhook handler at `/api/webhooks/stripe`
+- Built order confirmation email template with:
+  - Order details and line items
+  - Customer shipping address
+  - Total amount paid
+  - Professional HTML formatting
+- Added webhook endpoint in Stripe Dashboard
+- Configured webhook to listen for `checkout.session.completed` events
+
+#### 3. ✅ Environment Variables (ALL CONFIGURED)
+- **Stripe Test Keys:**
+  - `STRIPE_SECRET_KEY`: sk_test_51RLWmO... (configured)
+  - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`: pk_test_51RLWmO... (configured)
+  - `STRIPE_WEBHOOK_SECRET`: whsec_dwKFgPe2hMPx86rhRrgFTjc5keDyV5C4
+- **Resend API Key:**
+  - `RESEND_API_KEY`: re_PLZqekMF_PDZHkWhiwEKFjGfhxPtgzixo
+- **App URLs:**
+  - `NEXT_PUBLIC_APP_URL`: https://sellery-eight.vercel.app
+  - `NEXTAUTH_URL`: https://sellery-eight.vercel.app
+
+### What's Working
+✅ Full Stripe checkout flow (add to cart → checkout → Stripe payment → confirmation)
+✅ Test card payments process successfully
+✅ Order confirmation page displays after payment
+✅ Cart clears after successful order
+✅ Webhook endpoint created and configured in Stripe
+✅ Email template code ready to send
+
+### What Needs Attention
+⚠️ **Webhook Events Not Being Delivered**
+- Stripe webhook shows "No event deliveries found"
+- This means Stripe isn't sending events to the webhook endpoint
+- **Likely causes:**
+  1. Webhook might be listening to wrong account/events
+  2. May need to trigger from live payment (not just test mode)
+  3. Could be a timing issue
+- **Next steps to troubleshoot:**
+  1. Click "Send test events" in Stripe webhook dashboard
+  2. Select `checkout.session.completed` event type
+  3. Check if email arrives after test event
+  4. Review webhook delivery logs for errors
+  5. Verify webhook is listening to correct events
+
+### What We Accomplished (Previous Session - Oct 4)
 
 #### 1. Completed Production Deployment
 - ✅ Deployed to Vercel successfully
@@ -60,11 +121,13 @@ lib/products.ts (single source of truth)
 - **Checkout:** `app/checkout/page.tsx`
 
 ### Recent Git Commits
-1. `23467ce` - Fix product detail page 404 by using shared product data
-2. `0e23578` - Fix product detail page to show correct product
-3. `bc653ad` - Update ProductGrid to fetch products from API
-4. `0d330d3` - Update cron schedules for Vercel Hobby plan compatibility
-5. `abe33d0` - Replace placeholder products with real AliExpress product
+1. `960a1e0` - Add email confirmation with Resend integration (Oct 5)
+2. `feb80e6` - Fix Stripe integration for latest API version (Oct 5)
+3. `68f4143` - Fix ESLint error: escape apostrophe in checkout page (Oct 5)
+4. `cf5729b` - Add Stripe payment integration for real checkout (Oct 5)
+5. `0736a1d` - Add session notes for development progress tracking (Oct 4)
+6. `23467ce` - Fix product detail page 404 by using shared product data (Oct 4)
+7. `0e23578` - Fix product detail page to show correct product (Oct 4)
 
 ### Environment Setup
 
@@ -164,7 +227,14 @@ vercel inspect URL  # Check deployment details
 - ✅ Unlimited deployments
 - ✅ Serverless functions work fine
 
-### Files Modified This Session
+### Files Modified (Oct 5 Session)
+1. `app/api/checkout/route.ts` - Created Stripe checkout session endpoint
+2. `app/api/webhooks/stripe/route.ts` - Created webhook handler for emails
+3. `app/checkout/page.tsx` - Updated to use Stripe Checkout redirect
+4. `app/order-confirmation/page.tsx` - Added cart clearing on success
+5. `package.json` - Added Resend and Stripe dependencies
+
+### Files Modified (Oct 4 Session)
 1. `lib/products.ts` - Created (shared product data)
 2. `app/api/products/route.ts` - Updated to use shared data
 3. `app/product/[id]/page.tsx` - Fixed to use shared data
@@ -190,8 +260,52 @@ vercel inspect URL  # Check deployment details
    - Real AliExpress product
    - Ready to sell
 
-### Session Summary
+### Session Summary (Oct 4)
 Started with deployed site → Added real product from AliExpress → Fixed homepage/detail page issues → Everything working end-to-end → Ready for more products or customization!
 
 ---
-**Next Session:** Continue adding products or implement features from TODO.md
+
+## 🚀 NEXT SESSION: Quick Start Guide
+
+### Email Confirmation Troubleshooting (Priority #1)
+
+**Problem:** Webhook events not being delivered from Stripe to our endpoint
+
+**Steps to fix:**
+1. Go to Stripe webhook dashboard: https://dashboard.stripe.com/test/workbench/webhooks
+2. Find webhook: `https://sellery-eight.vercel.app/api/webhooks/stripe`
+3. Click **"Send test events"** button
+4. Select event type: `checkout.session.completed`
+5. Send the test event
+6. Check if confirmation email arrives
+7. If it works, try a real test purchase again
+8. If still no email, check:
+   - Webhook "Event deliveries" tab for error messages
+   - Vercel function logs for the webhook route
+   - Resend dashboard for any email sending errors
+
+### How to Test Full Purchase Flow
+1. Visit https://sellery-eight.vercel.app
+2. Add health book to cart
+3. Go to checkout
+4. Click "Proceed to Payment"
+5. Use test card: `4242 4242 4242 4242`, exp `12/34`, CVV `123`
+6. Use a real email address
+7. Complete purchase
+8. Check email inbox for confirmation
+
+### Key URLs for Next Session
+- **Live Store:** https://sellery-eight.vercel.app
+- **Stripe Dashboard:** https://dashboard.stripe.com/test/dashboard
+- **Stripe Webhooks:** https://dashboard.stripe.com/test/workbench/webhooks
+- **Resend Dashboard:** https://resend.com/emails
+- **Vercel Dashboard:** https://vercel.com/nicks-projects-2d008226/sellery
+- **GitHub Repo:** https://github.com/auqone/sellery
+
+### Test Cards (Stripe)
+- **Success:** 4242 4242 4242 4242
+- **Declined:** 4000 0000 0000 0002
+- **3D Secure:** 4000 0025 0000 3155
+
+---
+**Next Session:** Fix webhook event delivery → Test email confirmations → Add more products from AliExpress
