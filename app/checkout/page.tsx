@@ -2,10 +2,7 @@
 
 import { useCartStore } from "@/store/cartStore";
 import { useState } from "react";
-import { loadStripe } from "@stripe/stripe-js";
 import Footer from "@/components/Footer";
-
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 export default function CheckoutPage() {
   const { items, getTotalPrice } = useCartStore();
@@ -35,13 +32,10 @@ export default function CheckoutPage() {
       }
 
       // Redirect to Stripe Checkout
-      const stripe = await stripePromise;
-      const { error } = await stripe!.redirectToCheckout({
-        sessionId: data.sessionId,
-      });
-
-      if (error) {
-        setError(error.message || "An error occurred");
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setError("Failed to create checkout session");
         setLoading(false);
       }
     } catch (err: any) {
