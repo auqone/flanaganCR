@@ -1,12 +1,12 @@
-# Sellery Development Session Notes
+# App Development Session Notes
 **Last Updated:** October 13, 2025
 
 ## Current Status: ✅ FULLY FUNCTIONAL - Payments & Email Confirmations Working!
 
 ### Live URLs
-- **Main Site:** https://sellery-eight.vercel.app
-- **GitHub Repo:** https://github.com/auqone/sellery
-- **Vercel Project:** nicks-projects-2d008226/sellery
+- **Main Site:** https://app-eight.vercel.app
+- **GitHub Repo:** https://github.com/auqone/app
+- **Vercel Project:** nicks-projects-2d008226/app
 - **Stripe Dashboard:** https://dashboard.stripe.com/test/dashboard
 - **Resend Dashboard:** https://resend.com/
 
@@ -35,7 +35,7 @@
 - ✅ All Stripe keys present and valid
 
 #### 3. Tested Webhook Endpoint
-- Endpoint accessible at `https://sellery-eight.vercel.app/api/webhooks/stripe`
+- Endpoint accessible at `https://app-eight.vercel.app/api/webhooks/stripe`
 - Returns proper 405 Method Not Allowed for GET requests
 - POST endpoint working correctly
 
@@ -68,10 +68,10 @@ stripe webhook_endpoints update we_1SEmSMEZBN1nrFIOc6ZefzT4 \
 
 ### Technical Details
 - **Webhook ID:** we_1SEmSMEZBN1nrFIOc6ZefzT4
-- **Webhook URL:** https://sellery-eight.vercel.app/api/webhooks/stripe
+- **Webhook URL:** https://app-eight.vercel.app/api/webhooks/stripe
 - **Event Type:** checkout.session.completed
 - **Email Provider:** Resend
-- **From Address:** Sellery <orders@resend.dev>
+- **From Address:** App <orders@resend.dev>
 
 ### Next Steps
 1. **Test with real purchase** - Complete a full test transaction
@@ -111,8 +111,8 @@ stripe webhook_endpoints update we_1SEmSMEZBN1nrFIOc6ZefzT4 \
 - **Resend API Key:**
   - `RESEND_API_KEY`: re_PLZqekMF_PDZHkWhiwEKFjGfhxPtgzixo
 - **App URLs:**
-  - `NEXT_PUBLIC_APP_URL`: https://sellery-eight.vercel.app
-  - `NEXTAUTH_URL`: https://sellery-eight.vercel.app
+  - `NEXT_PUBLIC_APP_URL`: https://app-eight.vercel.app
+  - `NEXTAUTH_URL`: https://app-eight.vercel.app
 
 ### What's Working
 ✅ Full Stripe checkout flow (add to cart → checkout → Stripe payment → confirmation)
@@ -199,7 +199,7 @@ lib/products.ts (single source of truth)
 
 #### Local Environment (.env)
 - Contains same variables as production
-- Located at: `C:\Users\chest\Sellery\.env`
+- Located at: `C:\Users\chest\App\.env`
 
 ### Working Features
 ✅ Homepage with product grid
@@ -309,9 +309,9 @@ vercel inspect URL  # Check deployment details
 - **Future:** Could integrate AliExpress API for automation
 
 ### Important URLs & Credentials
-- **Live Store:** https://sellery-eight.vercel.app
-- **GitHub:** https://github.com/auqone/sellery
-- **Vercel Dashboard:** https://vercel.com/nicks-projects-2d008226/sellery
+- **Live Store:** https://app-eight.vercel.app
+- **GitHub:** https://github.com/auqone/app
+- **Vercel Dashboard:** https://vercel.com/nicks-projects-2d008226/app
 - **Product Excel:** `C:\Users\chest\OneDrive\Desktop\aliexpress.xlsx`
 
 ### Current Product Inventory
@@ -331,7 +331,7 @@ Started with deployed site → Added real product from AliExpress → Fixed home
 The webhook issue has been resolved. Email confirmations are now working!
 
 ### How to Test Full Purchase Flow
-1. Visit https://sellery-eight.vercel.app
+1. Visit https://app-eight.vercel.app
 2. Add health book to cart
 3. Go to checkout
 4. Click "Proceed to Payment"
@@ -354,12 +354,12 @@ The webhook issue has been resolved. Email confirmations are now working!
 - **Advanced features:** Product reviews, wishlist, recommendations
 
 ### Key URLs for Next Session
-- **Live Store:** https://sellery-eight.vercel.app
+- **Live Store:** https://app-eight.vercel.app
 - **Stripe Dashboard:** https://dashboard.stripe.com/test/dashboard
 - **Stripe Webhooks:** https://dashboard.stripe.com/test/workbench/webhooks
 - **Resend Dashboard:** https://resend.com/emails
-- **Vercel Dashboard:** https://vercel.com/nicks-projects-2d008226/sellery
-- **GitHub Repo:** https://github.com/auqone/sellery
+- **Vercel Dashboard:** https://vercel.com/nicks-projects-2d008226/app
+- **GitHub Repo:** https://github.com/auqone/app
 
 ### Test Cards (Stripe)
 - **Success:** 4242 4242 4242 4242

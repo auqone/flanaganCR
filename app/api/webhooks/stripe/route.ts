@@ -2,15 +2,21 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { Resend } from "resend";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-09-30.clover",
-});
+// Initialize services lazily to avoid build-time errors
+function getStripe() {
+  return new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: "2025-09-30.clover",
+  });
+}
 
-const resend = process.env.RESEND_API_KEY
-  ? new Resend(process.env.RESEND_API_KEY)
-  : null;
+function getResend() {
+  return process.env.RESEND_API_KEY
+    ? new Resend(process.env.RESEND_API_KEY)
+    : null;
+}
 
 export async function POST(request: NextRequest) {
+  const stripe = getStripe();
   const body = await request.text();
   const signature = request.headers.get("stripe-signature");
 
@@ -51,15 +57,16 @@ export async function POST(request: NextRequest) {
       const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
 
       // Send confirmation email
+      const resend = getResend();
       if (!resend) {
         console.warn("Resend not configured, skipping email");
         return NextResponse.json({ received: true });
       }
 
       await resend.emails.send({
-        from: "Sellery <orders@resend.dev>", // You'll update this with your domain
+        from: "Shop <orders@resend.dev>", // You'll update this with your domain
         to: session.customer_details?.email || "",
-        subject: "Order Confirmation - Sellery",
+        subject: "Order Confirmation",
         html: `
           <!DOCTYPE html>
           <html>
@@ -123,10 +130,10 @@ export async function POST(request: NextRequest) {
 
                   <p>If you have any questions, please don't hesitate to contact us.</p>
 
-                  <p>Thank you for shopping with Sellery!</p>
+                  <p>Thank you for shopping with us!</p>
                 </div>
                 <div class="footer">
-                  <p>&copy; ${new Date().getFullYear()} Sellery. All rights reserved.</p>
+                  <p>&copy; ${new Date().getFullYear()} All rights reserved.</p>
                   <p>This is an automated confirmation email.</p>
                 </div>
               </div>

@@ -72,7 +72,7 @@ async function notifyOutOfStock(productId: string, productName: string): Promise
 
   // Send email notification
   // await sendEmail({
-  //   to: 'admin@sellery.com',
+  //   to: 'admin@example.com',
   //   subject: `Out of Stock Alert: ${productName}`,
   //   text: `Product ${productName} (ID: ${productId}) is now out of stock.`
   // });

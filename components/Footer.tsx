@@ -9,7 +9,7 @@ export default function Footer() {
           {/* Brand Section */}
           <div>
             <Link href="/" className="text-xl font-bold tracking-tight">
-              Sellery
+              Shop
             </Link>
             <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
               Your destination for quality products at great prices. Fast shipping, easy returns, and exceptional customer service.
@@ -202,7 +202,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="mt-8 border-t border-[var(--border)] pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            © {new Date().getFullYear()} Sellery. All rights reserved.
+            © {new Date().getFullYear()} All rights reserved.
           </p>
           <div className="flex gap-6 text-sm">
             <Link href="/privacy" className="text-gray-600 hover:text-[var(--accent)] transition-colors">

@@ -22,7 +22,7 @@ export default function ReturnsPage() {
 
           <h2 className="text-2xl font-semibold mt-8 mb-4">How to Return</h2>
           <ol className="list-decimal pl-6 space-y-2 mb-4">
-            <li>Contact our support team at support@sellery.com</li>
+            <li>Contact our support team at support@example.com</li>
             <li>Receive your return authorization and shipping label</li>
             <li>Pack the item securely with original packaging</li>
             <li>Ship the package using the provided label</li>
@@ -32,7 +32,7 @@ export default function ReturnsPage() {
           <h2 className="text-2xl font-semibold mt-8 mb-4">Exchanges</h2>
           <p className="mb-4">
             We&apos;re happy to exchange items for a different size or color. Contact us at
-            support@sellery.com to arrange an exchange.
+            support@example.com to arrange an exchange.
           </p>
 
           <h2 className="text-2xl font-semibold mt-8 mb-4">Return Shipping</h2>

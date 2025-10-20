@@ -1,8 +1,8 @@
-# Sellery - Project Summary
+# App - Project Summary
 
 ## 🎉 What We Built
 
-A complete, production-ready ecommerce platform called **Sellery** with a clean, minimal aesthetic and robust functionality.
+A complete, production-ready ecommerce platform called **App** with a clean, minimal aesthetic and robust functionality.
 
 ## ✨ Features Implemented
 
@@ -99,7 +99,7 @@ Development:
 
 ### File Structure
 ```
-sellery/
+app/
 ├── app/                        # Next.js App Router
 │   ├── api/                   # API Routes
 │   │   └── products/         # Product endpoints
@@ -173,7 +173,7 @@ Currently includes 6 sample products across categories:
 ### Immediate (Week 1)
 1. **Customize branding**
    - Update colors in `globals.css`
-   - Replace "Sellery" with your brand name
+   - Replace "App" with your brand name
    - Add your logo
 
 2. **Add real products**

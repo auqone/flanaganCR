@@ -1,4 +1,4 @@
-# Sellery - Modern Ecommerce Platform
+# App - Modern Ecommerce Platform
 
 A clean, minimal, and robust ecommerce platform built with Next.js 15, TypeScript, and Tailwind CSS.
 
@@ -52,8 +52,8 @@ A clean, minimal, and robust ecommerce platform built with Next.js 15, TypeScrip
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/sellery.git
-cd sellery
+git clone https://github.com/yourusername/app.git
+cd app
 ```
 
 2. Install dependencies:
@@ -97,7 +97,7 @@ npm run dev
 ## Project Structure
 
 ```
-sellery/
+app/
 ├── app/                      # Next.js app directory
 │   ├── api/                 # API routes
 │   │   └── products/       # Product API endpoints

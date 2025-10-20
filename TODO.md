@@ -1,4 +1,4 @@
-# Sellery Development Checklist
+# App Development Checklist
 
 ## ✅ Completed
 
@@ -26,7 +26,7 @@ Nothing currently in progress - ready to customize!
 ## 📋 Next Steps (Prioritized)
 
 ### Phase 1: Customization (This Week)
-- [ ] Update site name from "Sellery" to your brand
+- [ ] Update site name from "App" to your brand
 - [ ] Change color scheme in `app/globals.css`
 - [ ] Add your logo to header
 - [ ] Replace sample products with real products

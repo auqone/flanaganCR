@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sellery - Your Online Shopping Destination",
+  title: "Your Online Shopping Destination",
   description: "Shop the latest products with great deals and fast shipping",
 };
 

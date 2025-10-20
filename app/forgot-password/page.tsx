@@ -27,7 +27,7 @@ export default function ForgotPasswordPage() {
           {/* Logo */}
           <div className="flex justify-center mb-8">
             <Link href="/" className="text-2xl font-bold">
-              Sellery
+              Shop
             </Link>
           </div>
 

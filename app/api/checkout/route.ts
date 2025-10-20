@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-09-30.clover",
-});
-
 export async function POST(request: NextRequest) {
   try {
+    // Initialize Stripe only when the endpoint is called
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+      apiVersion: "2025-09-30.clover",
+    });
+
     const { items } = await request.json();
 
     // Create line items for Stripe

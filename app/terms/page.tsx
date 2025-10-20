@@ -10,13 +10,13 @@ export default function TermsPage() {
 
           <h2 className="text-2xl font-semibold mt-8 mb-4">Agreement to Terms</h2>
           <p className="mb-4">
-            By accessing and using Sellery, you agree to be bound by these Terms of Service and all
+            By accessing and using this website, you agree to be bound by these Terms of Service and all
             applicable laws and regulations.
           </p>
 
           <h2 className="text-2xl font-semibold mt-8 mb-4">Use License</h2>
           <p className="mb-4">
-            Permission is granted to temporarily use Sellery for personal, non-commercial use only.
+            Permission is granted to temporarily use this website for personal, non-commercial use only.
           </p>
 
           <h2 className="text-2xl font-semibold mt-8 mb-4">Product Information</h2>
@@ -45,13 +45,13 @@ export default function TermsPage() {
 
           <h2 className="text-2xl font-semibold mt-8 mb-4">Limitation of Liability</h2>
           <p className="mb-4">
-            Sellery shall not be liable for any indirect, incidental, special, or consequential damages
+            We shall not be liable for any indirect, incidental, special, or consequential damages
             arising from your use of the site or products purchased.
           </p>
 
           <h2 className="text-2xl font-semibold mt-8 mb-4">Contact</h2>
           <p className="mb-4">
-            Questions about these Terms should be sent to legal@sellery.com
+            Questions about these Terms should be sent to legal@example.com
           </p>
         </div>
       </div>

@@ -37,12 +37,12 @@ export default function PrivacyPage() {
           <h2 className="text-2xl font-semibold mt-8 mb-4">Your Rights</h2>
           <p className="mb-4">
             You have the right to access, correct, or delete your personal information. Contact
-            us at privacy@sellery.com to exercise these rights.
+            us at privacy@example.com to exercise these rights.
           </p>
 
           <h2 className="text-2xl font-semibold mt-8 mb-4">Contact Us</h2>
           <p className="mb-4">
-            If you have questions about this Privacy Policy, please contact us at privacy@sellery.com
+            If you have questions about this Privacy Policy, please contact us at privacy@example.com
           </p>
         </div>
       </div>

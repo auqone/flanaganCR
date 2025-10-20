@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Upload, X } from "lucide-react";
 import StarRating from "./StarRating";
 
@@ -106,7 +107,7 @@ export default function ReviewForm({ productId, onSubmit }: ReviewFormProps) {
         <div className="flex flex-wrap gap-3">
           {images.map((image, index) => (
             <div key={index} className="relative w-20 h-20 rounded overflow-hidden">
-              <img src={image} alt={`Upload ${index + 1}`} className="w-full h-full object-cover" />
+              <Image src={image} alt={`Upload ${index + 1}`} width={80} height={80} className="w-full h-full object-cover" />
               <button
                 type="button"
                 onClick={() => removeImage(index)}

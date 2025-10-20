@@ -17,7 +17,7 @@ export function OrderConfirmationEmail(order: Order): string {
           <!-- Header -->
           <tr>
             <td style="padding: 40px; text-align: center; background-color: #000000;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: bold;">Sellery</h1>
+              <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: bold;">Shop</h1>
             </td>
           </tr>
 
@@ -77,7 +77,7 @@ export function OrderConfirmationEmail(order: Order): string {
 
               <!-- CTA Button -->
               <div style="margin-top: 30px; text-align: center;">
-                <a href="https://sellery.com/account/orders/${order.id}" style="display: inline-block; background-color: #000000; color: #ffffff; text-decoration: none; padding: 14px 30px; border-radius: 4px; font-weight: 500;">
+                <a href="https://example.com/account/orders/${order.id}" style="display: inline-block; background-color: #000000; color: #ffffff; text-decoration: none; padding: 14px 30px; border-radius: 4px; font-weight: 500;">
                   View Order Status
                 </a>
               </div>
@@ -88,10 +88,10 @@ export function OrderConfirmationEmail(order: Order): string {
           <tr>
             <td style="padding: 30px; background-color: #f5f5f5; text-align: center;">
               <p style="margin: 0 0 10px; color: #666; font-size: 14px;">
-                Questions? Contact us at <a href="mailto:support@sellery.com" style="color: #000000;">support@sellery.com</a>
+                Questions? Contact us at <a href="mailto:support@example.com" style="color: #000000;">support@example.com</a>
               </p>
               <p style="margin: 0; color: #999; font-size: 12px;">
-                © ${new Date().getFullYear()} Sellery. All rights reserved.
+                © ${new Date().getFullYear()} All rights reserved.
               </p>
             </td>
           </tr>
@@ -120,7 +120,7 @@ export function ShippingNotificationEmail(order: Order, trackingNumber: string):
         <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
           <tr>
             <td style="padding: 40px; text-align: center; background-color: #000000;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: bold;">Sellery</h1>
+              <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: bold;">Shop</h1>
             </td>
           </tr>
 
@@ -159,10 +159,10 @@ export function ShippingNotificationEmail(order: Order, trackingNumber: string):
           <tr>
             <td style="padding: 30px; background-color: #f5f5f5; text-align: center;">
               <p style="margin: 0 0 10px; color: #666; font-size: 14px;">
-                Questions? Contact us at <a href="mailto:support@sellery.com" style="color: #000000;">support@sellery.com</a>
+                Questions? Contact us at <a href="mailto:support@example.com" style="color: #000000;">support@example.com</a>
               </p>
               <p style="margin: 0; color: #999; font-size: 12px;">
-                © ${new Date().getFullYear()} Sellery. All rights reserved.
+                © ${new Date().getFullYear()} All rights reserved.
               </p>
             </td>
           </tr>
@@ -193,7 +193,7 @@ export function AbandonedCartEmail(cart: Cart): string {
         <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
           <tr>
             <td style="padding: 40px; text-align: center; background-color: #000000;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: bold;">Sellery</h1>
+              <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: bold;">Shop</h1>
             </td>
           </tr>
 
@@ -235,7 +235,7 @@ export function AbandonedCartEmail(cart: Cart): string {
               </div>
 
               <div style="text-align: center;">
-                <a href="https://sellery.com/cart?code=${discountCode}" style="display: inline-block; background-color: #000000; color: #ffffff; text-decoration: none; padding: 14px 40px; border-radius: 4px; font-weight: 500; font-size: 16px;">
+                <a href="https://example.com/cart?code=${discountCode}" style="display: inline-block; background-color: #000000; color: #ffffff; text-decoration: none; padding: 14px 40px; border-radius: 4px; font-weight: 500; font-size: 16px;">
                   Complete My Purchase
                 </a>
               </div>
@@ -249,10 +249,10 @@ export function AbandonedCartEmail(cart: Cart): string {
           <tr>
             <td style="padding: 30px; background-color: #f5f5f5; text-align: center;">
               <p style="margin: 0 0 10px; color: #666; font-size: 14px;">
-                Questions? Contact us at <a href="mailto:support@sellery.com" style="color: #000000;">support@sellery.com</a>
+                Questions? Contact us at <a href="mailto:support@example.com" style="color: #000000;">support@example.com</a>
               </p>
               <p style="margin: 0; color: #999; font-size: 12px;">
-                © ${new Date().getFullYear()} Sellery. All rights reserved.
+                © ${new Date().getFullYear()} All rights reserved.
               </p>
             </td>
           </tr>

@@ -4,10 +4,10 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <div className="flex-1 container mx-auto px-4 py-16">
-        <h1 className="text-4xl font-bold mb-6">About Sellery</h1>
+        <h1 className="text-4xl font-bold mb-6">About Us</h1>
         <div className="prose dark:prose-invert max-w-3xl">
           <p className="text-lg mb-4">
-            Welcome to Sellery - your destination for quality products at great prices.
+            Welcome - your destination for quality products at great prices.
           </p>
           <p className="mb-4">
             We&apos;re passionate about bringing you the best products from around the world,

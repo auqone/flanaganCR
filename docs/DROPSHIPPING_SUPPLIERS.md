@@ -1,7 +1,7 @@
-# Dropshipping Suppliers Guide for Sellery
+# Dropshipping Suppliers Guide for App
 
 ## Overview
-This document outlines the recommended dropshipping suppliers for Sellery, focusing on US-based suppliers for fast shipping and high customer satisfaction.
+This document outlines the recommended dropshipping suppliers for App, focusing on US-based suppliers for fast shipping and high customer satisfaction.
 
 ## Top Recommended Suppliers for 2025
 
@@ -114,7 +114,7 @@ This document outlines the recommended dropshipping suppliers for Sellery, focus
 
 ---
 
-## Integration Plan for Sellery
+## Integration Plan for App
 
 ### Phase 1: Initial Setup
 1. Create Spocket account (primary supplier)
@@ -180,7 +180,7 @@ Retail Price = (Supplier Cost × 3) + Premium Shipping
 
 ## Quality Control Checklist
 
-Before adding products to Sellery:
+Before adding products to App:
 - [ ] Verify supplier rating (4.5+ stars)
 - [ ] Check product reviews (50+ reviews)
 - [ ] Confirm US-based or fast shipping

@@ -49,7 +49,7 @@ export default function FeaturedCarousel() {
   };
 
   return (
-    <div className="relative w-full h-[400px] md:h-[500px] overflow-hidden bg-[var(--muted)] mb-8">
+    <div className="relative w-full h-[200px] md:h-[250px] overflow-hidden bg-[var(--muted)]">
       {featuredProducts.map((product, index) => (
         <div
           key={product.id}
@@ -67,15 +67,15 @@ export default function FeaturedCarousel() {
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/30" />
             <div className="absolute inset-0 flex items-center">
-              <div className="container mx-auto px-4">
+              <div className="container mx-auto px-2 md:px-4">
                 <div className="max-w-2xl text-white">
-                  <h2 className="text-4xl md:text-5xl font-bold mb-4">{product.name}</h2>
-                  <p className="text-lg md:text-xl mb-6">{product.description}</p>
-                  <div className="flex items-center gap-6">
-                    <span className="text-3xl font-bold">${product.price}</span>
+                  <h2 className="text-2xl md:text-3xl font-bold mb-1">{product.name}</h2>
+                  <p className="text-sm md:text-base mb-2">{product.description}</p>
+                  <div className="flex items-center gap-2 md:gap-3">
+                    <span className="text-xl md:text-2xl font-bold">${product.price}</span>
                     <Link
                       href={`/product/${product.id}`}
-                      className="bg-white text-black px-8 py-3 rounded-md font-medium hover:bg-gray-100 transition-colors"
+                      className="bg-white text-black px-6 py-2 rounded-md font-medium hover:bg-gray-100 transition-colors text-sm"
                     >
                       Shop Now
                     </Link>
@@ -90,21 +90,21 @@ export default function FeaturedCarousel() {
       {/* Navigation Buttons */}
       <button
         onClick={prevSlide}
-        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white p-2 rounded-full transition-colors"
+        className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white p-1.5 rounded-full transition-colors"
         aria-label="Previous slide"
       >
-        <ChevronLeft className="h-6 w-6" />
+        <ChevronLeft className="h-4 w-4 md:h-5 md:w-5" />
       </button>
       <button
         onClick={nextSlide}
-        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white p-2 rounded-full transition-colors"
+        className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white p-1.5 rounded-full transition-colors"
         aria-label="Next slide"
       >
-        <ChevronRight className="h-6 w-6" />
+        <ChevronRight className="h-4 w-4 md:h-5 md:w-5" />
       </button>
 
       {/* Dots Indicator */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2">
         {featuredProducts.map((_, index) => (
           <button
             key={index}

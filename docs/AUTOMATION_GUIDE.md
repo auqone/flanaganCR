@@ -1,8 +1,8 @@
-# Sellery Automation Guide
+# App Automation Guide
 
 ## Overview
 
-This guide covers setting up comprehensive automation for your Sellery dropshipping store to minimize manual work and maximize efficiency.
+This guide covers setting up comprehensive automation for your App dropshipping store to minimize manual work and maximize efficiency.
 
 ## 🎯 Automation Goals
 
@@ -281,7 +281,7 @@ export const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendOrderConfirmation(order: Order) {
   await resend.emails.send({
-    from: 'orders@sellery.com',
+    from: 'orders@app.com',
     to: order.customerEmail,
     subject: `Order Confirmation - #${order.id}`,
     html: OrderConfirmationTemplate(order)
@@ -290,7 +290,7 @@ export async function sendOrderConfirmation(order: Order) {
 
 export async function sendShippingNotification(order: Order, tracking: string) {
   await resend.emails.send({
-    from: 'shipping@sellery.com',
+    from: 'shipping@app.com',
     to: order.customerEmail,
     subject: `Your order has shipped! - #${order.id}`,
     html: ShippingNotificationTemplate(order, tracking)
@@ -299,7 +299,7 @@ export async function sendShippingNotification(order: Order, tracking: string) {
 
 export async function sendAbandonedCartEmail(cart: Cart) {
   await resend.emails.send({
-    from: 'hello@sellery.com',
+    from: 'hello@app.com',
     to: cart.customerEmail,
     subject: 'You left something in your cart!',
     html: AbandonedCartTemplate(cart)
@@ -441,7 +441,7 @@ export async function handleChatMessage(message: string, context: any) {
   // Common questions with automated responses
   const responses = {
     shipping: "We offer free shipping on orders over $50! Orders typically arrive in 3-5 business days.",
-    returns: "We have a 30-day return policy. Contact support@sellery.com to initiate a return.",
+    returns: "We have a 30-day return policy. Contact support@app.com to initiate a return.",
     tracking: "You can track your order using the tracking link in your shipping confirmation email."
   };
 
@@ -481,7 +481,7 @@ export async function sendDailySalesReport() {
   `;
 
   await sendEmail({
-    to: 'admin@sellery.com',
+    to: 'admin@app.com',
     subject: 'Daily Sales Report',
     text: report
   });
@@ -594,7 +594,7 @@ export async function sendAutomationAlert(
   error: Error
 ) {
   await sendEmail({
-    to: 'admin@sellery.com',
+    to: 'admin@app.com',
     subject: `🚨 Automation Alert: ${system} Failed`,
     text: `
       System: ${system}

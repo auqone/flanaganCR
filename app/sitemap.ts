@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://sellery.com' // Update this to your actual domain
+  const baseUrl = 'https://example.com' // Update this to your actual domain
 
   // Static pages
   const staticPages = [

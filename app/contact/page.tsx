@@ -58,8 +58,8 @@ export default function ContactPage() {
           <div className="mt-12 pt-8 border-t border-[var(--border)]">
             <h2 className="text-xl font-semibold mb-4">Other Ways to Reach Us</h2>
             <div className="space-y-3 text-gray-600 dark:text-gray-400">
-              <p><strong>Email:</strong> support@sellery.com</p>
-              <p><strong>Phone:</strong> 1-800-SELLERY</p>
+              <p><strong>Email:</strong> support@example.com</p>
+              <p><strong>Phone:</strong> 1-800-SUPPORT</p>
               <p><strong>Hours:</strong> Monday - Friday, 9am - 5pm EST</p>
             </div>
           </div>

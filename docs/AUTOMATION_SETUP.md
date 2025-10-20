@@ -2,11 +2,11 @@
 
 ## ✅ What's Been Created
 
-Your Sellery automation system is now ready! Here's what's included:
+Your App automation system is now ready! Here's what's included:
 
 ### 📁 File Structure
 ```
-Sellery/
+App/
 ├── lib/
 │   ├── automation/
 │   │   ├── types.ts              # TypeScript definitions
@@ -103,7 +103,7 @@ git add .
 git commit -m "Add automation system"
 
 # Push to GitHub
-git remote add origin https://github.com/yourusername/sellery.git
+git remote add origin https://github.com/yourusername/app.git
 git push -u origin main
 
 # Deploy to Vercel

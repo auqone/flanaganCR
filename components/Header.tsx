@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { ShoppingCart, Search, User, Menu, X } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { useAuth } from "@/contexts/AuthContext";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ThemeToggle from "./ThemeToggle";
 
 const navItems = [
@@ -23,38 +22,14 @@ export default function Header() {
   const { items } = useCartStore();
   const { isAuthenticated } = useAuth();
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
-  const [isDark, setIsDark] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    // Check initial theme
-    setIsDark(document.documentElement.classList.contains("dark"));
-
-    // Watch for theme changes
-    const observer = new MutationObserver(() => {
-      setIsDark(document.documentElement.classList.contains("dark"));
-    });
-
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-
-    return () => observer.disconnect();
-  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[var(--border)] bg-[var(--background)]/95 backdrop-blur supports-[backdrop-filter]:bg-[var(--background)]/60">
       <div className="container mx-auto px-4">
         <div className="flex h-32 items-center justify-between gap-8">
           <Link href="/" className="flex items-center">
-            <Image
-              src={isDark ? "/logo-light.png" : "/logo-dark.png"}
-              alt="Sellery"
-              width={150}
-              height={150}
-              className="object-contain"
-            />
+            <span className="text-2xl font-bold tracking-tight">Shop</span>
           </Link>
 
           <div className="relative flex-1 max-w-2xl hidden md:block">

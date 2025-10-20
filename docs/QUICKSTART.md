@@ -1,10 +1,10 @@
-# Quick Start Guide - Sellery
+# Quick Start Guide - App
 
 Get your ecommerce store up and running in minutes!
 
 ## What You've Got
 
-Sellery is a fully functional ecommerce platform with:
+App is a fully functional ecommerce platform with:
 
 ✅ **Beautiful Product Catalog** - Clean grid layout with high-quality images
 ✅ **Advanced Filtering** - Left sidebar with category, price, brand, rating filters
