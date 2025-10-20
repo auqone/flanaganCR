@@ -1,0 +1,191 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Product model - stores all product information
+model Product {
+  id              String      @id @default(cuid())
+  name            String
+  price           Float       // Final selling price to customer
+  basePrice       Float?      // Cost from AliExpress (for profit tracking)
+  profitMargin    Float?      // Profit margin percentage (e.g., 40 for 40%)
+  image           String
+  images          String[]    @default([]) // Multiple product images
+  category        String
+  rating          Float       @default(4.5)
+  reviews         Int         @default(0)
+  description     String      @db.Text
+  features        String[]
+  inStock         Boolean     @default(true)
+  stockQuantity   Int?        @default(0) // Track inventory quantity
+  sku             String?     @unique // Stock keeping unit
+  aliexpressUrl   String?     // Link to source product on AliExpress
+  aliexpressId    String?     // AliExpress product ID for easy reference
+  keywords        String[]    @default([]) // SEO keywords
+  metaDescription String?     @db.Text // SEO meta description
+  orderItems      OrderItem[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([category])
+  @@index([inStock])
+}
+
+// Customer model - stores customer information
+model Customer {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String
+  password      String?  // Hashed password (optional for guest checkout)
+  phone         String?
+
+  // Shipping address
+  address       String?
+  city          String?
+  state         String?
+  zipCode       String?
+  country       String?  @default("United States")
+
+  orders        Order[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([email])
+}
+
+// Order model - tracks all orders
+model Order {
+  id                  String      @id @default(cuid())
+  orderNumber         String      @unique // Human-readable order number (e.g., ORD-1001)
+
+  // Customer information
+  customer            Customer    @relation(fields: [customerId], references: [id])
+  customerId          String
+
+  // Order details
+  orderItems          OrderItem[]
+  status              OrderStatus @default(PENDING)
+  subtotal            Float
+  shippingCost        Float       @default(0)
+  tax                 Float       @default(0)
+  total               Float
+
+  // Payment information
+  paymentStatus       PaymentStatus @default(PENDING)
+  paymentMethod       String?     // e.g., "stripe", "paypal"
+  stripePaymentId     String?     // Stripe payment intent ID
+
+  // Shipping information
+  shippingName        String
+  shippingEmail       String
+  shippingPhone       String?
+  shippingAddress     String
+  shippingCity        String
+  shippingState       String
+  shippingZip         String
+  shippingCountry     String      @default("United States")
+
+  // Fulfillment tracking
+  trackingNumber      String?
+  trackingUrl         String?
+  aliexpressOrderId   String?     // Reference to AliExpress order for dropshipping
+  aliexpressOrderUrl  String?     // Direct link to AliExpress order
+
+  // Notes
+  customerNotes       String?     @db.Text
+  adminNotes          String?     @db.Text // Internal notes for admin
+
+  // Timestamps
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  shippedAt           DateTime?
+  deliveredAt         DateTime?
+
+  @@index([customerId])
+  @@index([status])
+  @@index([orderNumber])
+  @@index([createdAt])
+}
+
+// OrderItem model - individual items within an order
+model OrderItem {
+  id              String   @id @default(cuid())
+
+  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId         String
+
+  product         Product  @relation(fields: [productId], references: [id])
+  productId       String
+
+  quantity        Int
+  price           Float    // Price at time of purchase (in case product price changes)
+
+  // Snapshot of product details at time of order
+  productName     String
+  productImage    String
+
+  createdAt       DateTime @default(now())
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+// Admin model - for admin user authentication
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String   // Hashed password
+  name      String
+  role      AdminRole @default(ADMIN)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+}
+
+// Enums for order status
+enum OrderStatus {
+  PENDING           // Order received, payment pending
+  PAID              // Payment confirmed
+  PROCESSING        // Order being prepared
+  ORDERED_SUPPLIER  // Ordered from AliExpress
+  SHIPPED           // Shipped to customer
+  DELIVERED         // Delivered to customer
+  CANCELLED         // Order cancelled
+  REFUNDED          // Order refunded
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  STAFF
+}
+
+// Email Subscriber model - stores newsletter/VIP list signups
+model EmailSubscriber {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  name        String
+  source      String?  @default("vip_signup") // Where they signed up from
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([email])
+  @@index([createdAt])
+}
