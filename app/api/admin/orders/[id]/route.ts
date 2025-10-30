@@ -105,7 +105,7 @@ async function handlePUT(
     ) {
       try {
         await resend.emails.send({
-          from: "Sellery <orders@resend.dev>",
+          from: "Tigerista <orders@resend.dev>",
           to: order.shippingEmail,
           subject: `Your order ${order.orderNumber} has shipped!`,
           html: `
@@ -156,10 +156,10 @@ async function handlePUT(
                     </ul>
 
                     <p>Estimated delivery: 5-15 business days</p>
-                    <p>Thank you for shopping with Sellery!</p>
+                    <p>Thank you for shopping with Tigerista!</p>
                   </div>
                   <div class="footer">
-                    <p>&copy; ${new Date().getFullYear()} Sellery. All rights reserved.</p>
+                    <p>&copy; ${new Date().getFullYear()} Tigerista. All rights reserved.</p>
                   </div>
                 </div>
               </body>

@@ -440,7 +440,7 @@ export default function AdminProductsPage() {
 
               <div>
                 <label htmlFor="finalPrice" className="block text-sm font-medium mb-2">
-                  Final Sellery Price
+                  Final Tigerista Price
                 </label>
                 <input
                   id="finalPrice"

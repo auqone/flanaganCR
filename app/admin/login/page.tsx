@@ -54,7 +54,7 @@ export default function AdminLoginPage() {
           {/* Logo */}
           <div className="flex justify-center mb-8">
             <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">
-              Sellery Admin
+              Tigerista Admin
             </div>
           </div>
 
@@ -85,7 +85,7 @@ export default function AdminLoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  placeholder="admin@sellery.com"
+                  placeholder="admin@tigerista.com"
                   required
                 />
               </div>
