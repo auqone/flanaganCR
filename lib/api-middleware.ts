@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from './auth';
+import { logger } from './logger';
 import {
   checkRateLimit,
   getClientIp,
@@ -11,8 +12,13 @@ import {
 export async function requireAdmin(request: NextRequest): Promise<NextResponse | null> {
   try {
     const token = request.cookies.get('admin_token')?.value;
+    const clientIp = getClientIp(request);
 
     if (!token) {
+      logger.warn('Unauthorized admin access attempt - no token', {
+        path: request.nextUrl.pathname,
+        ip: clientIp,
+      });
       return NextResponse.json(
         { error: 'Unauthorized - Please log in' },
         { status: 401 }
@@ -22,6 +28,10 @@ export async function requireAdmin(request: NextRequest): Promise<NextResponse |
     const payload = verifyToken(token);
 
     if (!payload) {
+      logger.warn('Invalid or expired admin token', {
+        path: request.nextUrl.pathname,
+        ip: clientIp,
+      });
       return NextResponse.json(
         { error: 'Unauthorized - Invalid or expired token' },
         { status: 401 }
@@ -31,7 +41,9 @@ export async function requireAdmin(request: NextRequest): Promise<NextResponse |
     // Token is valid, allow the request to proceed
     return null;
   } catch (error) {
-    console.error('Auth middleware error:', error);
+    logger.error('Auth middleware error', error, {
+      path: request.nextUrl.pathname,
+    });
     return NextResponse.json(
       { error: 'Authentication failed' },
       { status: 500 }
