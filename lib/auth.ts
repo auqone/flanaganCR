@@ -3,8 +3,17 @@ import bcrypt from 'bcryptjs';
 import { prisma } from './prisma';
 import { cookies } from 'next/headers';
 
-const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'your-secret-key-change-this';
-const TOKEN_EXPIRY = '90d'; // 90 days - extended for development
+const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'dev-secret-only-for-testing';
+
+if (!process.env.NEXTAUTH_SECRET && process.env.NODE_ENV === 'production') {
+  throw new Error('NEXTAUTH_SECRET environment variable is required in production');
+}
+
+if (!process.env.NEXTAUTH_SECRET && process.env.NODE_ENV !== 'production') {
+  console.warn('⚠️  NEXTAUTH_SECRET is not set. Using a development fallback. Set NEXTAUTH_SECRET for production.');
+}
+
+const TOKEN_EXPIRY = '7d'; // 7 days - reasonable for admin sessions
 
 export interface JWTPayload {
   adminId: string;
@@ -14,12 +23,18 @@ export interface JWTPayload {
 
 // Generate JWT token
 export function generateToken(payload: JWTPayload): string {
+  if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET is not configured');
+  }
   return jwt.sign(payload, JWT_SECRET, { expiresIn: TOKEN_EXPIRY });
 }
 
 // Verify JWT token
 export function verifyToken(token: string): JWTPayload | null {
   try {
+    if (!JWT_SECRET) {
+      throw new Error('JWT_SECRET is not configured');
+    }
     return jwt.verify(token, JWT_SECRET) as JWTPayload;
   } catch (error) {
     return null;
@@ -92,7 +107,7 @@ export async function setAuthCookie(adminId: string, email: string, role: string
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
-    maxAge: 60 * 60 * 24 * 90, // 90 days - extended for development
+    maxAge: 60 * 60 * 24 * 7, // 7 days
     path: '/',
   });
 }

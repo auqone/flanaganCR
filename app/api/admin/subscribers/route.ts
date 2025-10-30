@@ -7,14 +7,17 @@ async function handleGET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search") || "";
     const status = searchParams.get("status") || "all";
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "50")));
+    const skip = (page - 1) * limit;
 
     // Build where clause
     const where: any = {};
 
-    if (search) {
+    if (search && search.trim()) {
       where.OR = [
-        { email: { contains: search, mode: "insensitive" } },
-        { name: { contains: search, mode: "insensitive" } },
+        { email: { contains: search.trim(), mode: "insensitive" } },
+        { name: { contains: search.trim(), mode: "insensitive" } },
       ];
     }
 
@@ -23,14 +26,6 @@ async function handleGET(request: NextRequest) {
     } else if (status === "inactive") {
       where.isActive = false;
     }
-
-    // Fetch subscribers
-    const subscribers = await prisma.emailSubscriber.findMany({
-      where,
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
 
     // Get counts for summary
     const totalSubscribers = await prisma.emailSubscriber.count();
@@ -41,8 +36,27 @@ async function handleGET(request: NextRequest) {
       where: { isActive: false },
     });
 
+    // Fetch total with current filters
+    const total = await prisma.emailSubscriber.count({ where });
+
+    // Fetch subscribers with pagination
+    const subscribers = await prisma.emailSubscriber.findMany({
+      where,
+      orderBy: {
+        createdAt: "desc",
+      },
+      skip,
+      take: limit,
+    });
+
     return NextResponse.json({
-      subscribers,
+      data: subscribers,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit),
+      },
       summary: {
         total: totalSubscribers,
         active: activeSubscribers,
