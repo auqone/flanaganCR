@@ -51,7 +51,7 @@ export default function CustomersPage() {
       const params = new URLSearchParams();
       if (searchTerm) params.append("search", searchTerm);
 
-      const response = await fetch(`/api/admin/customers?${params}`);
+      const response = await fetch(`/api/admin/customers-test?${params}`);
       const data = await response.json();
       setCustomers(data);
     } catch (error) {

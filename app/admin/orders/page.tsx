@@ -82,7 +82,7 @@ export default function OrdersPage() {
       if (statusFilter !== "all") params.append("status", statusFilter);
       if (searchTerm) params.append("search", searchTerm);
 
-      const response = await fetch(`/api/admin/orders?${params}`);
+      const response = await fetch(`/api/admin/orders-test?${params}`);
       const data = await response.json();
       setOrders(data);
     } catch (error) {

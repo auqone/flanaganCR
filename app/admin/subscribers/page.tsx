@@ -42,11 +42,14 @@ export default function SubscribersPage() {
       if (searchTerm) params.append("search", searchTerm);
       if (statusFilter !== "all") params.append("status", statusFilter);
 
-      const response = await fetch(`/api/admin/subscribers?${params}`);
+      const response = await fetch(`/api/admin/subscribers-test?${params}`);
       const result = await response.json();
 
-      if (response.ok && result.subscribers) {
-        setData(result);
+      if (response.ok && result.data) {
+        setData({
+          subscribers: result.data,
+          summary: result.summary,
+        });
         setError(null);
       } else {
         console.error("Error fetching subscribers:", result.error || "Unknown error");
