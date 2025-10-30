@@ -28,19 +28,29 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch("/api/admin/me");
+      const response = await fetch("/api/admin/me-test");
       if (response.ok) {
         setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
       }
     } catch (err) {
       // Not authenticated
+      setIsAuthenticated(false);
     }
     setIsLoading(false);
   };
 
+  // Redirect to login if not authenticated (after auth check is done)
+  useEffect(() => {
+    if (!isLoading && !isLoginPage && !isAuthenticated) {
+      router.push('/admin/login');
+    }
+  }, [isLoading, isLoginPage, isAuthenticated, router]);
+
   const handleLogout = async () => {
     try {
-      await fetch("/api/admin/auth", {
+      await fetch("/api/admin/auth-test", {
         method: "DELETE",
       });
       setIsAuthenticated(false);
@@ -64,8 +74,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   }
 
   if (!isAuthenticated) {
-    // Redirect to login page instead of showing inline form
-    router.push('/admin/login');
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-lg">Redirecting to login...</div>

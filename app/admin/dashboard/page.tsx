@@ -52,7 +52,7 @@ export default function DashboardPage() {
   const fetchAnalytics = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/admin/analytics?period=${period}`);
+      const response = await fetch(`/api/admin/analytics-test?period=${period}`);
       const data = await response.json();
       setAnalytics(data);
     } catch (error) {

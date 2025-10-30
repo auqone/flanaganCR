@@ -22,7 +22,7 @@ export default function AdminLoginPage() {
 
     try {
       console.log("Sending login request..."); // Debug log
-      const response = await fetch("/api/admin/auth", {
+      const response = await fetch("/api/admin/auth-test", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
