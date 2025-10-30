@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Mail, Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
 
 export default function AdminLoginPage() {
@@ -53,14 +54,22 @@ export default function AdminLoginPage() {
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-8">
           {/* Logo */}
           <div className="flex justify-center mb-8">
-            <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">
-              Tigerista Admin
-            </div>
+            <Image
+              src="/logo.jpg"
+              alt="Flanagan Crafted Naturals"
+              width={200}
+              height={80}
+              className="object-contain"
+              priority
+            />
           </div>
 
           <h1 className="text-2xl font-bold text-center mb-2 text-gray-900 dark:text-white">
             Admin Login
           </h1>
+          <p className="text-center text-sm text-gray-500 mb-6">
+            Flanagan Crafted Naturals - Admin Dashboard
+          </p>
           <p className="text-center text-gray-600 dark:text-gray-400 mb-6">
             Sign in to access the admin dashboard
           </p>

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { ShoppingCart, Search, User, Menu, X } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { useAuth } from "@/contexts/AuthContext";
@@ -29,7 +30,14 @@ export default function Header() {
       <div className="container mx-auto px-4">
         <div className="flex h-32 items-center justify-between gap-8">
           <Link href="/" className="flex items-center">
-            <span className="text-2xl font-bold tracking-tight">Shop</span>
+            <Image
+              src="/logo.jpg"
+              alt="Flanagan Crafted Naturals"
+              width={150}
+              height={60}
+              className="h-16 w-auto"
+              priority
+            />
           </Link>
 
           <div className="relative flex-1 max-w-2xl hidden md:block">

@@ -105,7 +105,7 @@ async function handlePUT(
     ) {
       try {
         await resend.emails.send({
-          from: "Tigerista <orders@resend.dev>",
+          from: "Flanagan Crafted Naturals <orders@resend.dev>",
           to: order.shippingEmail,
           subject: `Your order ${order.orderNumber} has shipped!`,
           html: `
@@ -115,7 +115,8 @@ async function handlePUT(
                 <style>
                   body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
                   .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                  .header { background: #000; color: #fff; padding: 20px; text-align: center; }
+                  .header { background: #f8f8f8; padding: 20px; text-align: center; border-bottom: 2px solid #e0e0e0; }
+                  .logo { max-width: 250px; height: auto; margin: 0 auto; }
                   .content { padding: 20px; background: #f9f9f9; }
                   .tracking { background: #fff; padding: 15px; margin: 20px 0; border-radius: 5px; border: 2px solid #4CAF50; }
                   .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
@@ -125,11 +126,12 @@ async function handlePUT(
               <body>
                 <div class="container">
                   <div class="header">
-                    <h1>Your Order Has Shipped! 📦</h1>
+                    <img src="https://YOUR_DOMAIN/logo.jpg" alt="Flanagan Crafted Naturals" class="logo" style="max-width: 200px;">
+                    <h1 style="margin: 10px 0 0 0;">Your Order Has Shipped! 📦</h1>
                   </div>
                   <div class="content">
                     <p>Hi ${order.shippingName},</p>
-                    <p>Great news! Your order has been shipped and is on its way to you.</p>
+                    <p>Great news! Your order from <strong>Flanagan Crafted Naturals</strong> has been shipped and is on its way to you.</p>
 
                     <div class="tracking">
                       <h3>Tracking Information</h3>
@@ -156,10 +158,10 @@ async function handlePUT(
                     </ul>
 
                     <p>Estimated delivery: 5-15 business days</p>
-                    <p>Thank you for shopping with Tigerista!</p>
+                    <p>Thank you for shopping with Flanagan Crafted Naturals!</p>
                   </div>
                   <div class="footer">
-                    <p>&copy; ${new Date().getFullYear()} Tigerista. All rights reserved.</p>
+                    <p>&copy; ${new Date().getFullYear()} Flanagan Crafted Naturals. All rights reserved.</p>
                   </div>
                 </div>
               </body>

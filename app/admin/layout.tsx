@@ -3,6 +3,7 @@
 import { useState, useEffect, ReactNode } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Lock, LogOut, Package, List, Plus, ShoppingCart, BarChart3, Users, Mail } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
@@ -79,8 +80,14 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-8">
-              <Link href="/" className="text-xl font-bold">
-                Tigerista Admin
+              <Link href="/admin/dashboard" className="flex items-center gap-2">
+                <Image
+                  src="/logo.jpg"
+                  alt="Flanagan Crafted Naturals"
+                  width={120}
+                  height={40}
+                  className="h-10 w-auto"
+                />
               </Link>
 
               <div className="flex gap-4">

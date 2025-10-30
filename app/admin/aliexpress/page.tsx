@@ -25,7 +25,7 @@ export default function AliExpressPage() {
     {
       id: 1,
       title: "Receive Order Notification",
-      description: "Customer places order on your Tigerista store",
+      description: "Customer places order on Flanagan Crafted Naturals",
       status: "completed",
       details: [
         "Order appears in Orders dashboard with PAID status",
@@ -63,7 +63,7 @@ export default function AliExpressPage() {
       description: "Mark order as ordered from supplier",
       status: "pending",
       details: [
-        "In Tigerista Orders, click Edit on the order",
+        "In Admin Dashboard Orders, click Edit on the order",
         "Change status to 'ORDERED_SUPPLIER'",
         "Add AliExpress Order ID",
         "Add AliExpress Order URL (optional)",
@@ -83,11 +83,11 @@ export default function AliExpressPage() {
     },
     {
       id: 6,
-      title: "Add Tracking to Tigerista",
+      title: "Add Tracking to Admin Dashboard",
       description: "Update customer's order with tracking",
       status: "pending",
       details: [
-        "Edit the order in Tigerista Orders",
+        "Edit the order in Admin Dashboard Orders",
         "Change status to 'SHIPPED'",
         "Add tracking number from AliExpress",
         "Add tracking URL (optional but recommended)",
