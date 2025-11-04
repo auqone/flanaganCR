@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { authenticateAdmin, setAuthCookie, clearAuthCookie } from "@/lib/auth";
+import { authenticateAdmin, setAuthCookie, clearAuthCookie, generateToken } from "@/lib/auth";
 
 // Login endpoint
 export async function POST(request: Request) {
@@ -24,13 +24,11 @@ export async function POST(request: Request) {
     }
 
     // Create JWT token
-    const jwt = require('jsonwebtoken');
-    const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'dev-secret-only-for-testing';
-    const token = jwt.sign(
-      { adminId: admin.id, email: admin.email, role: admin.role },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
+    const token = generateToken({
+      adminId: admin.id,
+      email: admin.email,
+      role: admin.role,
+    });
 
     const response = NextResponse.json({
       success: true,
