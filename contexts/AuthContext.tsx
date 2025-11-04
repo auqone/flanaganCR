@@ -63,16 +63,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    // TODO: Implement actual login API call
-    // For now, this is a placeholder
-    const customer: Customer = {
-      id: Date.now().toString(),
-      email,
-      name: email.split("@")[0],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
 
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || "Failed to sign in");
+    }
+
+    const customer: Customer = await response.json();
     localStorage.setItem("customer", JSON.stringify(customer));
     setAuthState({
       customer,
