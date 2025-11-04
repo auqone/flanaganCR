@@ -3,8 +3,17 @@ import bcrypt from 'bcryptjs';
 import { prisma } from './prisma';
 import { cookies } from 'next/headers';
 
-const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'your-secret-key-change-this';
+const JWT_SECRET = process.env.NEXTAUTH_SECRET;
 const TOKEN_EXPIRY = '90d'; // 90 days - extended for development
+
+if (!JWT_SECRET) {
+  throw new Error(
+    'NEXTAUTH_SECRET environment variable is required. Please set it in your .env file.'
+  );
+}
+
+// Ensure JWT_SECRET is treated as a non-null string for the rest of the file
+const SECRET: string = JWT_SECRET;
 
 export interface CustomerJWTPayload {
   customerId: string;
@@ -13,13 +22,13 @@ export interface CustomerJWTPayload {
 
 // Generate JWT token for customer
 export function generateCustomerToken(payload: CustomerJWTPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: TOKEN_EXPIRY });
+  return jwt.sign(payload, SECRET, { expiresIn: TOKEN_EXPIRY });
 }
 
 // Verify customer JWT token
 export function verifyCustomerToken(token: string): CustomerJWTPayload | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as CustomerJWTPayload;
+    return jwt.verify(token, SECRET) as CustomerJWTPayload;
   } catch (error) {
     return null;
   }

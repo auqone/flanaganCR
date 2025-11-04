@@ -3,14 +3,12 @@ import bcrypt from 'bcryptjs';
 import { prisma } from './prisma';
 import { cookies } from 'next/headers';
 
-const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'dev-secret-only-for-testing';
+const JWT_SECRET = process.env.NEXTAUTH_SECRET;
 
-if (!process.env.NEXTAUTH_SECRET && process.env.NODE_ENV === 'production') {
-  throw new Error('NEXTAUTH_SECRET environment variable is required in production');
-}
-
-if (!process.env.NEXTAUTH_SECRET && process.env.NODE_ENV !== 'production') {
-  console.warn('⚠️  NEXTAUTH_SECRET is not set. Using a development fallback. Set NEXTAUTH_SECRET for production.');
+if (!JWT_SECRET) {
+  throw new Error(
+    'NEXTAUTH_SECRET environment variable is required. Please set it in your .env file.'
+  );
 }
 
 const TOKEN_EXPIRY = '7d'; // 7 days - reasonable for admin sessions

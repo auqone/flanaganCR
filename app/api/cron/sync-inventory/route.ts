@@ -15,9 +15,16 @@ import { syncInventory } from '@/lib/automation/inventorySync';
  */
 export async function GET(request: Request) {
   // Verify the request is from a cron job
+  const cronSecret = process.env.CRON_SECRET;
   const authHeader = request.headers.get('authorization');
 
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!cronSecret) {
+    console.error('CRON_SECRET environment variable is not set');
+    return new Response('Server misconfigured', { status: 500 });
+  }
+
+  if (authHeader !== `Bearer ${cronSecret}`) {
+    console.warn('Unauthorized cron request to sync-inventory');
     return new Response('Unauthorized', { status: 401 });
   }
 

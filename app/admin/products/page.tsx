@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { Package, Plus, AlertCircle, CheckCircle2, DollarSign, X, Sparkles, Copy } from "lucide-react";
+import { Package, Plus, AlertCircle, CheckCircle2, DollarSign, X, Sparkles, Copy, Upload, Loader, Folder, Search } from "lucide-react";
 
 interface ProductFormData {
   name: string;
@@ -55,8 +55,14 @@ export default function AdminProductsPage() {
   const [optimizedData, setOptimizedData] = useState<OptimizedData | null>(null);
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [addedProduct, setAddedProduct] = useState<any | null>(null);
+  const [showImageBrowser, setShowImageBrowser] = useState(false);
+  const [publicImages, setPublicImages] = useState<any[]>([]);
+  const [loadingImages, setLoadingImages] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const categories = [
     "Electronics & Gadgets",
@@ -157,6 +163,86 @@ export default function AdminProductsPage() {
     });
 
     setMessage({ type: "success", text: "Optimized data applied to form! Adjust as needed and submit." });
+  };
+
+  const loadPublicImages = async () => {
+    setLoadingImages(true);
+    try {
+      const response = await fetch("/api/admin/list-images", {
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to load images");
+      }
+
+      const data = await response.json();
+      setPublicImages(data.images || []);
+    } catch (err: any) {
+      setMessage({ type: "error", text: "Failed to load images from public folder" });
+    } finally {
+      setLoadingImages(false);
+    }
+  };
+
+  const handleSelectImage = (imageUrl: string) => {
+    setFormData({ ...formData, image: imageUrl });
+    setShowImageBrowser(false);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file
+    if (!file.type.startsWith("image/")) {
+      setMessage({ type: "error", text: "File must be an image (PNG, JPG, GIF, etc.)" });
+      return;
+    }
+
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+    if (file.size > MAX_FILE_SIZE) {
+      setMessage({ type: "error", text: "File size must be less than 10MB" });
+      return;
+    }
+
+    setIsUploading(true);
+    setMessage(null);
+
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("file", file);
+
+      // Upload to private storage
+      const response = await fetch("/api/admin/private-upload", {
+        method: "POST",
+        credentials: "include",
+        body: formDataToSend,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to upload image");
+      }
+
+      setFormData({
+        ...formData,
+        image: result.url,
+      });
+
+      setMessage({
+        type: "success",
+        text: `Image uploaded successfully! (${(file.size / 1024 / 1024).toFixed(2)}MB)`
+      });
+    } catch (err: any) {
+      setMessage({ type: "error", text: err.message || "Failed to upload image" });
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -455,31 +541,108 @@ export default function AdminProductsPage() {
             </div>
           </div>
 
-          {/* Image URL */}
-          <div>
-            <label htmlFor="image" className="block text-sm font-medium mb-2">
-              Product Image URL <span className="text-red-500">*</span>
-            </label>
-            <input
-              id="image"
-              type="url"
-              value={formData.image}
-              onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-              placeholder="https://ae01.alicdn.com/kf/..."
-              className="w-full px-4 py-3 rounded-md border border-[var(--border)] bg-transparent focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
-              required
-            />
+          {/* Image Hosting Section */}
+          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-lg p-6 border border-blue-200 dark:border-blue-800">
+            <div className="flex items-center gap-2 mb-4">
+              <Upload className="w-6 h-6 text-blue-600" />
+              <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100">Private Product Image Hosting</h3>
+            </div>
+
+            <p className="text-sm text-blue-800 dark:text-blue-200 mb-4">
+              Images are stored privately on your server at <code className="bg-blue-100 dark:bg-blue-900 px-2 py-1 rounded text-xs font-mono">/private-images</code>
+            </p>
+
+            <div className="space-y-4">
+              {/* Upload Section */}
+              <div>
+                <label className="block text-sm font-medium text-blue-900 dark:text-blue-100 mb-3">
+                  Upload Image to Your Server
+                </label>
+                <div className="relative">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={isUploading}
+                    className="hidden"
+                    aria-label="Upload product image"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-blue-300 dark:border-blue-700 rounded-lg bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isUploading ? (
+                      <>
+                        <Loader className="w-5 h-5 animate-spin text-blue-600" />
+                        <span className="text-sm font-medium text-blue-900 dark:text-blue-100">Uploading to your server...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-5 h-5 text-blue-600" />
+                        <span className="text-sm font-medium text-blue-900 dark:text-blue-100">Click to upload or drag & drop</span>
+                      </>
+                    )}
+                  </button>
+                  <p className="mt-2 text-xs text-blue-700 dark:text-blue-300">PNG, JPG, GIF, WebP up to 10MB • Stored on your server</p>
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-px bg-blue-200 dark:bg-blue-800"></div>
+                <span className="text-xs font-medium text-blue-600 dark:text-blue-400">OR</span>
+                <div className="flex-1 h-px bg-blue-200 dark:bg-blue-800"></div>
+              </div>
+
+              {/* Browse Public Folder */}
+              <div>
+                <label className="block text-sm font-medium text-blue-900 dark:text-blue-100 mb-3">
+                  Browse Images from Public Folder
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowImageBrowser(true);
+                    loadPublicImages();
+                  }}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-blue-300 dark:border-blue-700 rounded-lg bg-blue-100 dark:bg-blue-900/30 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+                >
+                  <Folder className="w-5 h-5 text-blue-600" />
+                  <span className="text-sm font-medium text-blue-900 dark:text-blue-100">Browse Public Folder</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Image Preview */}
             {formData.image && (
-              <div className="mt-3">
-                <Image
-                  src={formData.image}
-                  alt="Preview"
-                  width={128}
-                  height={128}
-                  className="w-32 h-32 object-cover rounded-md border border-[var(--border)]"
-                />
+              <div className="mt-4 pt-4 border-t border-blue-200 dark:border-blue-800">
+                <p className="text-xs font-medium text-blue-700 dark:text-blue-300 mb-3">Preview</p>
+                <div className="relative w-32 h-32">
+                  <Image
+                    src={formData.image}
+                    alt="Product preview"
+                    fill
+                    className="object-cover rounded-md border-2 border-blue-300 dark:border-blue-700"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, image: "" })}
+                  className="mt-2 text-xs text-red-600 dark:text-red-400 hover:underline"
+                >
+                  Clear image
+                </button>
               </div>
             )}
+
+            <div className="mt-4 p-3 bg-blue-100 dark:bg-blue-900/30 rounded border border-blue-300 dark:border-blue-700">
+              <p className="text-xs text-blue-900 dark:text-blue-100">
+                <strong>🔒 Private Hosting:</strong> Images uploaded here are stored on your server in <code className="bg-blue-200 dark:bg-blue-800 px-1 rounded text-xs font-mono">/public/private-images</code>. They&apos;re served through your domain at <code className="bg-blue-200 dark:bg-blue-800 px-1 rounded text-xs font-mono">/api/admin/private-images/[filename]</code>
+              </p>
+            </div>
           </div>
 
           {/* Category */}
@@ -613,6 +776,99 @@ export default function AdminProductsPage() {
           </button>
         </div>
       </form>
+
+      {/* Image Browser Modal */}
+      {showImageBrowser && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg max-w-4xl w-full max-h-[80vh] flex flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-2">
+                <Folder className="w-6 h-6 text-blue-600" />
+                <h3 className="text-xl font-bold">Browse Public Images</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowImageBrowser(false)}
+                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Search Bar */}
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search images..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+
+            {/* Image Grid */}
+            <div className="flex-1 overflow-y-auto p-4">
+              {loadingImages ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="flex flex-col items-center gap-2">
+                    <Loader className="w-8 h-8 animate-spin text-blue-600" />
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Loading images...</p>
+                  </div>
+                </div>
+              ) : publicImages.length === 0 ? (
+                <div className="flex items-center justify-center h-full">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">No images found in public folder</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {publicImages
+                    .filter((img) =>
+                      img.filename.toLowerCase().includes(searchQuery.toLowerCase())
+                    )
+                    .map((image, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => handleSelectImage(image.url)}
+                        className="relative group overflow-hidden rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-blue-500 transition-all"
+                      >
+                        <div className="relative w-full aspect-square bg-gray-100 dark:bg-gray-800">
+                          <Image
+                            src={image.url}
+                            alt={image.filename}
+                            fill
+                            className="object-cover group-hover:scale-110 transition-transform"
+                            sizes="200px"
+                          />
+                        </div>
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-end">
+                          <div className="w-full p-2 bg-gradient-to-t from-black/80 to-transparent text-white text-xs truncate opacity-0 group-hover:opacity-100 transition-opacity">
+                            {image.filename}
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setShowImageBrowser(false)}
+                className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Success Preview */}
       {addedProduct && (
