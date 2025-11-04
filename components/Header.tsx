@@ -10,13 +10,13 @@ import ThemeToggle from "./ThemeToggle";
 
 const navItems = [
   { name: "All Products", href: "/" },
-  { name: "Electronics & Gadgets", href: "/?category=Electronics+%26+Gadgets" },
-  { name: "Sports & Fitness", href: "/?category=Sports+%26+Fitness" },
-  { name: "Home & Kitchen", href: "/?category=Home+%26+Kitchen" },
-  { name: "Home & Garden", href: "/?category=Home+%26+Garden" },
-  { name: "Health & Wellness", href: "/?category=Health+%26+Wellness" },
-  { name: "Jewelry & Accessories", href: "/?category=Jewelry+%26+Accessories" },
-  { name: "Digital Products", href: "/?category=Digital+Products" },
+  { name: "Jellies", href: "/?category=Jellies" },
+  { name: "Foods", href: "/?category=Foods" },
+  { name: "Medicinal Tinctures", href: "/?category=Medicinal+Tinctures" },
+  { name: "Topical Items", href: "/?category=Topical+Items" },
+  { name: "Teas", href: "/?category=Teas" },
+  { name: "Jewelry", href: "/?category=Jewelry" },
+  { name: "Pine Needle Crafts", href: "/?category=Pine+Needle+Crafts" },
 ];
 
 export default function Header() {
@@ -26,16 +26,16 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-[var(--border)] bg-[var(--background)]/95 backdrop-blur supports-[backdrop-filter]:bg-[var(--background)]/60">
+    <header className="sticky top-0 z-50 w-full border-b border-[var(--border)] bg-[#f5eddc] backdrop-blur supports-[backdrop-filter]:bg-[#f5eddc]/60">
       <div className="container mx-auto px-4">
         <div className="flex h-32 items-center justify-between gap-8">
           <Link href="/" className="flex items-center">
             <Image
-              src="/logo.jpg"
+              src="/logo.png"
               alt="Flanagan Crafted Naturals"
-              width={150}
-              height={60}
-              className="h-16 w-auto"
+              width={280}
+              height={112}
+              className="h-28 w-auto"
               priority
             />
           </Link>

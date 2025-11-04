@@ -12,7 +12,7 @@ interface FilterSection {
 const filters: FilterSection[] = [
   {
     title: "Category",
-    options: ["Electronics & Gadgets", "Sports & Fitness", "Home & Kitchen", "Home & Garden", "Health & Wellness", "Jewelry & Accessories", "Digital Products"],
+    options: ["Jellies", "Foods", "Medicinal Tinctures", "Topical Items", "Teas", "Jewelry", "Pine Needle Crafts"],
   },
   {
     title: "Price Range",
