@@ -28,7 +28,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch("/api/admin/me");
+      const response = await fetch("/api/admin/me", {
+        credentials: "include",
+      });
       if (response.ok) {
         setIsAuthenticated(true);
       } else {
@@ -52,6 +54,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     try {
       await fetch("/api/admin/auth", {
         method: "DELETE",
+        credentials: "include",
       });
       setIsAuthenticated(false);
       router.push("/");
