@@ -42,7 +42,7 @@ export default function SubscribersPage() {
       if (searchTerm) params.append("search", searchTerm);
       if (statusFilter !== "all") params.append("status", statusFilter);
 
-      const response = await fetch(`/api/admin/subscribers-test?${params}`, {
+      const response = await fetch(`/api/admin/subscribers?${params}`, {
         credentials: "include",
       });
       const result = await response.json();
