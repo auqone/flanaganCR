@@ -62,14 +62,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signup = async (email: string, password: string, name: string) => {
-    // In production, this would call your API
-    const user: User = {
-      id: Date.now().toString(),
-      email,
-      name,
-      createdAt: new Date(),
-    };
+    const response = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password, name }),
+    });
 
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || "Failed to create account");
+    }
+
+    const user: User = await response.json();
     localStorage.setItem("user", JSON.stringify(user));
     setAuthState({
       user,
