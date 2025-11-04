@@ -25,12 +25,19 @@ const filters: FilterSection[] = [
 ];
 
 function FilterGroup({ filter }: { filter: FilterSection }) {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentCategory = searchParams.get("category");
   const currentPrice = searchParams.get("price");
   const currentRating = searchParams.get("rating");
+
+  const getCurrentValue = () => {
+    if (filter.title === "Category") return currentCategory || "All";
+    if (filter.title === "Price Range") return currentPrice || "Any";
+    if (filter.title === "Rating") return currentRating || "Any";
+    return "Select";
+  };
 
   const toggleOption = (option: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -57,71 +64,72 @@ function FilterGroup({ filter }: { filter: FilterSection }) {
 
     const queryString = params.toString();
     router.push(queryString ? `/?${queryString}` : "/");
+    setIsOpen(false);
+  };
+
+  const clearFilter = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (filter.title === "Category") params.delete("category");
+    if (filter.title === "Price Range") params.delete("price");
+    if (filter.title === "Rating") params.delete("rating");
+    const queryString = params.toString();
+    router.push(queryString ? `/?${queryString}` : "/");
+    setIsOpen(false);
   };
 
   return (
-    <div className="border-b border-[var(--border)] pb-4">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex w-full items-center justify-between py-3 text-sm font-medium"
-      >
-        {filter.title}
-        {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-      </button>
-      {isOpen && (
-        <div className="space-y-2 pt-2">
-          <label className="flex items-center gap-2 text-sm cursor-pointer hover:opacity-70">
-            <input
-              type="radio"
-              name={filter.title}
-              checked={
-                (filter.title === "Category" && !currentCategory) ||
-                (filter.title === "Price Range" && !currentPrice) ||
-                (filter.title === "Rating" && !currentRating)
-              }
-              onChange={() => {
-                const params = new URLSearchParams(searchParams.toString());
-                if (filter.title === "Category") params.delete("category");
-                if (filter.title === "Price Range") params.delete("price");
-                if (filter.title === "Rating") params.delete("rating");
-                const queryString = params.toString();
-                router.push(queryString ? `/?${queryString}` : "/");
-              }}
-              className="h-4 w-4 cursor-pointer"
-            />
-            <span>None</span>
-          </label>
-          {filter.options.map((option) => (
-            <label key={option} className="flex items-center gap-2 text-sm cursor-pointer hover:opacity-70">
-              <input
-                type="radio"
-                name={filter.title}
-                checked={
-                  (filter.title === "Category" && currentCategory === option) ||
-                  (filter.title === "Price Range" && currentPrice === option) ||
-                  (filter.title === "Rating" && currentRating === option)
-                }
-                onChange={() => toggleOption(option)}
-                className="h-4 w-4 cursor-pointer"
-              />
-              <span>{option}</span>
-            </label>
-          ))}
-        </div>
-      )}
+    <div className="border-b border-[var(--border)] pb-2">
+      <div className="relative">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full flex items-center justify-between py-2 px-3 text-sm font-medium border border-[var(--border)] rounded-md hover:bg-[var(--muted)] transition-colors"
+        >
+          <span className="truncate">
+            <span className="text-xs text-gray-500">{filter.title}:</span> {getCurrentValue()}
+          </span>
+          {isOpen ? <ChevronUp className="h-4 w-4 flex-shrink-0" /> : <ChevronDown className="h-4 w-4 flex-shrink-0" />}
+        </button>
+        {isOpen && (
+          <div className="absolute top-full left-0 right-0 mt-1 bg-[var(--background)] border border-[var(--border)] rounded-md shadow-lg z-10">
+            <div className="max-h-48 overflow-y-auto p-2 space-y-1">
+              <button
+                onClick={clearFilter}
+                className="w-full text-left px-2 py-1.5 text-sm hover:bg-[var(--muted)] rounded transition-colors"
+              >
+                Clear Filter
+              </button>
+              {filter.options.map((option) => (
+                <button
+                  key={option}
+                  onClick={() => toggleOption(option)}
+                  className={`w-full text-left px-2 py-1.5 text-sm rounded transition-colors ${
+                    (filter.title === "Category" && currentCategory === option) ||
+                    (filter.title === "Price Range" && currentPrice === option) ||
+                    (filter.title === "Rating" && currentRating === option)
+                      ? "bg-[var(--accent)] text-[var(--background)] font-medium"
+                      : "hover:bg-[var(--muted)]"
+                  }`}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
 
 export default function FilterSidebar() {
   return (
-    <aside className="w-64 border-r border-[var(--border)] p-6 hidden lg:block">
-      <div className="space-y-1">
-        <h2 className="text-lg font-semibold mb-4">Filters</h2>
+    <aside className="w-64 border-r border-[var(--border)] p-4 hidden lg:block">
+      <div className="space-y-2">
+        <h2 className="text-base font-semibold mb-3">Filters</h2>
         {filters.map((filter) => (
           <FilterGroup key={filter.title} filter={filter} />
         ))}
-        <button className="mt-6 w-full rounded-md border border-[var(--border)] py-2 text-sm font-medium hover:bg-[var(--muted)] transition-colors">
+        <button className="mt-4 w-full rounded-md border border-[var(--border)] py-1.5 text-xs font-medium hover:bg-[var(--muted)] transition-colors">
           Clear All Filters
         </button>
       </div>
