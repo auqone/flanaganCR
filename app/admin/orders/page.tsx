@@ -82,7 +82,9 @@ export default function OrdersPage() {
       if (statusFilter !== "all") params.append("status", statusFilter);
       if (searchTerm) params.append("search", searchTerm);
 
-      const response = await fetch(`/api/admin/orders-test?${params}`);
+      const response = await fetch(`/api/admin/orders-test?${params}`, {
+        credentials: "include",
+      });
       const data = await response.json();
       setOrders(data);
     } catch (error) {
@@ -117,6 +119,7 @@ export default function OrdersPage() {
       const response = await fetch(`/api/admin/orders/${selectedOrder.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(editForm),
       });
 

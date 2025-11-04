@@ -122,6 +122,7 @@ export default function AdminProductsPage() {
       const response = await fetch("/api/admin/optimize-seo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           title: aliExpressData.title,
           description: aliExpressData.description,
@@ -201,6 +202,7 @@ export default function AdminProductsPage() {
       const response = await fetch("/api/admin/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(productData),
       });
 
