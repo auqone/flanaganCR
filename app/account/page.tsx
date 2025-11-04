@@ -10,7 +10,7 @@ import { User, Package, MapPin, Heart, Settings, LogOut } from "lucide-react";
 
 export default function AccountPage() {
   const router = useRouter();
-  const { user, isAuthenticated, isLoading, logout } = useAuth();
+  const { customer, isAuthenticated, isLoading, logout } = useAuth();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -34,7 +34,7 @@ export default function AccountPage() {
     );
   }
 
-  if (!user) {
+  if (!customer) {
     return null;
   }
 
@@ -51,11 +51,11 @@ export default function AccountPage() {
               <div className="bg-[var(--muted)] rounded-lg p-6 sticky top-24">
                 <div className="flex items-center gap-4 mb-6 pb-6 border-b border-[var(--border)]">
                   <div className="w-16 h-16 rounded-full bg-[var(--accent)] flex items-center justify-center text-[var(--background)] text-2xl font-bold">
-                    {user.name.charAt(0).toUpperCase()}
+                    {customer.name.charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <h3 className="font-semibold">{user.name}</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{user.email}</p>
+                    <h3 className="font-semibold">{customer.name}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{customer.email}</p>
                   </div>
                 </div>
 
@@ -110,7 +110,7 @@ export default function AccountPage() {
             <div className="md:col-span-2 space-y-6">
               {/* Welcome Card */}
               <div className="bg-gradient-to-r from-[var(--accent)] to-blue-600 rounded-lg p-8 text-white">
-                <h2 className="text-2xl font-bold mb-2">Welcome back, {user.name}! 👋</h2>
+                <h2 className="text-2xl font-bold mb-2">Welcome back, {customer.name}! 👋</h2>
                 <p className="opacity-90">Manage your orders, addresses, and account settings</p>
               </div>
 
@@ -154,16 +154,16 @@ export default function AccountPage() {
                 <div className="space-y-4">
                   <div className="flex justify-between py-3 border-b border-[var(--border)]">
                     <span className="text-gray-600 dark:text-gray-400">Full Name</span>
-                    <span className="font-medium">{user.name}</span>
+                    <span className="font-medium">{customer.name}</span>
                   </div>
                   <div className="flex justify-between py-3 border-b border-[var(--border)]">
                     <span className="text-gray-600 dark:text-gray-400">Email</span>
-                    <span className="font-medium">{user.email}</span>
+                    <span className="font-medium">{customer.email}</span>
                   </div>
                   <div className="flex justify-between py-3">
                     <span className="text-gray-600 dark:text-gray-400">Member Since</span>
                     <span className="font-medium">
-                      {new Date(user.createdAt).toLocaleDateString()}
+                      {new Date(customer.createdAt).toLocaleDateString()}
                     </span>
                   </div>
                 </div>
