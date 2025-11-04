@@ -54,9 +54,9 @@ export default function SignupPage() {
               <Image
                 src="/logo.png"
                 alt="Flanagan Crafted Naturals"
-                width={150}
-                height={60}
-                className="h-16 w-auto"
+                width={280}
+                height={112}
+                className="h-28 w-auto"
               />
             </Link>
           </div>
