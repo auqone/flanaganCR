@@ -6,7 +6,6 @@ import { ShoppingCart, Search, User, Menu, X } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
-import ThemeToggle from "./ThemeToggle";
 
 const navItems = [
   { name: "All Products", href: "/" },
@@ -50,8 +49,6 @@ export default function Header() {
           </div>
 
           <div className="flex items-center gap-4 md:gap-6">
-            <ThemeToggle />
-
             <Link
               href={isAuthenticated ? "/account" : "/login"}
               className="hover:opacity-70 transition-opacity"
