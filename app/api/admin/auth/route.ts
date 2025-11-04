@@ -23,8 +23,14 @@ export async function POST(request: Request) {
       );
     }
 
-    // Set auth cookie
-    await setAuthCookie(admin.id, admin.email, admin.role);
+    // Create JWT token
+    const jwt = require('jsonwebtoken');
+    const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'dev-secret-only-for-testing';
+    const token = jwt.sign(
+      { adminId: admin.id, email: admin.email, role: admin.role },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
 
     const response = NextResponse.json({
       success: true,
@@ -34,6 +40,15 @@ export async function POST(request: Request) {
         name: admin.name,
         role: admin.role,
       },
+    });
+
+    // Set cookie in response
+    response.cookies.set('admin_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      path: '/',
     });
 
     return response;
