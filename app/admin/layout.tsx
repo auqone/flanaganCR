@@ -28,7 +28,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch("/api/admin/me-test");
+      const response = await fetch("/api/admin/me");
       if (response.ok) {
         setIsAuthenticated(true);
       } else {
@@ -50,7 +50,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   const handleLogout = async () => {
     try {
-      await fetch("/api/admin/auth-test", {
+      await fetch("/api/admin/auth", {
         method: "DELETE",
       });
       setIsAuthenticated(false);

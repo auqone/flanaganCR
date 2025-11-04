@@ -16,13 +16,11 @@ export default function AdminLoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted"); // Debug log
     setError("");
     setIsLoading(true);
 
     try {
-      console.log("Sending login request..."); // Debug log
-      const response = await fetch("/api/admin/auth-test", {
+      const response = await fetch("/api/admin/auth", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -30,19 +28,15 @@ export default function AdminLoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
-      console.log("Response status:", response.status); // Debug log
       const data = await response.json();
-      console.log("Response data:", data); // Debug log
 
       if (!response.ok) {
         throw new Error(data.error || "Login failed");
       }
 
       // Success! Redirect to admin dashboard
-      console.log("Login successful, redirecting..."); // Debug log
       window.location.href = "/admin/dashboard";
     } catch (err: any) {
-      console.error("Login error:", err); // Debug log
       setError(err.message || "Invalid email or password");
       setIsLoading(false);
     }
@@ -55,11 +49,11 @@ export default function AdminLoginPage() {
           {/* Logo */}
           <div className="flex justify-center mb-8">
             <Image
-              src="/logo.jpg"
+              src="/logo.png"
               alt="Flanagan Crafted Naturals"
               width={200}
               height={80}
-              className="object-contain"
+              className="h-20 w-auto object-contain"
               priority
             />
           </div>
@@ -67,7 +61,7 @@ export default function AdminLoginPage() {
           <h1 className="text-2xl font-bold text-center mb-2 text-gray-900 dark:text-white">
             Admin Login
           </h1>
-          <p className="text-center text-sm text-gray-500 mb-6">
+          <p className="text-center text-sm text-gray-500 mb-2">
             Flanagan Crafted Naturals - Admin Dashboard
           </p>
           <p className="text-center text-gray-600 dark:text-gray-400 mb-6">
@@ -94,7 +88,7 @@ export default function AdminLoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  placeholder="admin@tigerista.com"
+                  placeholder="admin@flanagancrafted.com"
                   required
                 />
               </div>
