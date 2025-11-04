@@ -85,8 +85,8 @@ export default function OrdersPage() {
       const response = await fetch(`/api/admin/orders-test?${params}`, {
         credentials: "include",
       });
-      const data = await response.json();
-      setOrders(data);
+      const result = await response.json();
+      setOrders(result.data || result);
     } catch (error) {
       console.error("Error fetching orders:", error);
     } finally {

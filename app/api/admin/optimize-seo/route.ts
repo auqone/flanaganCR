@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { withAdminAuth } from "@/lib/api-middleware";
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -12,7 +13,7 @@ interface OptimizeRequest {
   category: string;
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: NextRequest) {
   try {
     const { title, description, features, category }: OptimizeRequest = await request.json();
 
@@ -94,3 +95,5 @@ Respond ONLY with valid JSON in this exact format:
     );
   }
 }
+
+export const POST = withAdminAuth(handlePOST);
