@@ -38,7 +38,7 @@ export default function AdminProductsPage() {
     profitMargin: "40",
     finalPrice: "",
     image: "",
-    category: "Electronics & Gadgets",
+    category: "Jellies",
     rating: "4.5",
     reviews: "0",
     description: "",
@@ -65,13 +65,13 @@ export default function AdminProductsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const categories = [
-    "Electronics & Gadgets",
-    "Sports & Fitness",
-    "Home & Kitchen",
-    "Home & Garden",
-    "Health & Wellness",
-    "Jewelry & Accessories",
-    "Digital Products",
+    "Jellies",
+    "Foods",
+    "Medicinal Tinctures",
+    "Topical Items",
+    "Teas",
+    "Jewelry",
+    "Pine Needle Crafts",
   ];
 
   // Calculate final price whenever base price or profit margin changes
@@ -308,7 +308,7 @@ export default function AdminProductsPage() {
         profitMargin: "40",
         finalPrice: "",
         image: "",
-        category: "Electronics & Gadgets",
+        category: "Jellies",
         rating: "4.5",
         reviews: "0",
         description: "",

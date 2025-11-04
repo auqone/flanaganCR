@@ -27,12 +27,13 @@ interface Product {
 }
 
 const CATEGORIES = [
-  "Electronics",
-  "Fashion",
-  "Beauty",
-  "Home & Garden",
-  "Health & Wellness",
-  "Sports & Outdoors",
+  "Jellies",
+  "Foods",
+  "Medicinal Tinctures",
+  "Topical Items",
+  "Teas",
+  "Jewelry",
+  "Pine Needle Crafts",
 ];
 
 export default function ManageProductsPage() {
