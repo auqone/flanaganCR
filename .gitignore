@@ -40,3 +40,9 @@ yarn-error.log*
 next-env.d.ts
 
 .env*.local
+.env
+node_modules/
+build/
+dist/
+.DS_Store
+__pycache__/
