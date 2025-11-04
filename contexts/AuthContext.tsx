@@ -1,39 +1,58 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { User, AuthState } from "@/types/user";
+
+interface Customer {
+  id: string;
+  email: string;
+  name: string;
+  phone?: string | null;
+  address?: string | null;
+  city?: string | null;
+  state?: string | null;
+  zipCode?: string | null;
+  country?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface AuthState {
+  customer: Customer | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+}
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, name: string) => Promise<void>;
   logout: () => void;
-  updateUser: (user: Partial<User>) => void;
+  updateCustomer: (customer: Partial<Customer>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [authState, setAuthState] = useState<AuthState>({
-    user: null,
+    customer: null,
     isAuthenticated: false,
     isLoading: true,
   });
 
   useEffect(() => {
     // Check for existing session
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
+    const storedCustomer = localStorage.getItem("customer");
+    if (storedCustomer) {
       try {
-        const user = JSON.parse(storedUser);
+        const customer = JSON.parse(storedCustomer);
         setAuthState({
-          user,
+          customer,
           isAuthenticated: true,
           isLoading: false,
         });
       } catch (error) {
-        localStorage.removeItem("user");
+        localStorage.removeItem("customer");
         setAuthState({
-          user: null,
+          customer: null,
           isAuthenticated: false,
           isLoading: false,
         });
@@ -44,18 +63,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    // In production, this would call your API
-    // For now, simulate login
-    const user: User = {
+    // TODO: Implement actual login API call
+    // For now, this is a placeholder
+    const customer: Customer = {
       id: Date.now().toString(),
       email,
       name: email.split("@")[0],
       createdAt: new Date(),
+      updatedAt: new Date(),
     };
 
-    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("customer", JSON.stringify(customer));
     setAuthState({
-      user,
+      customer,
       isAuthenticated: true,
       isLoading: false,
     });
@@ -75,31 +95,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error(data.error || "Failed to create account");
     }
 
-    const user: User = await response.json();
-    localStorage.setItem("user", JSON.stringify(user));
+    const customer: Customer = await response.json();
+    localStorage.setItem("customer", JSON.stringify(customer));
     setAuthState({
-      user,
+      customer,
       isAuthenticated: true,
       isLoading: false,
     });
   };
 
   const logout = () => {
-    localStorage.removeItem("user");
+    localStorage.removeItem("customer");
     setAuthState({
-      user: null,
+      customer: null,
       isAuthenticated: false,
       isLoading: false,
     });
   };
 
-  const updateUser = (updates: Partial<User>) => {
-    if (authState.user) {
-      const updatedUser = { ...authState.user, ...updates };
-      localStorage.setItem("user", JSON.stringify(updatedUser));
+  const updateCustomer = (updates: Partial<Customer>) => {
+    if (authState.customer) {
+      const updatedCustomer = { ...authState.customer, ...updates };
+      localStorage.setItem("customer", JSON.stringify(updatedCustomer));
       setAuthState((prev) => ({
         ...prev,
-        user: updatedUser,
+        customer: updatedCustomer,
       }));
     }
   };
@@ -111,7 +131,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         signup,
         logout,
-        updateUser,
+        updateCustomer,
       }}
     >
       {children}
