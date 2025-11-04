@@ -64,38 +64,38 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/?category=Electronics+%26+Gadgets" className="text-gray-600 hover:text-[var(--accent)] transition-colors">
-                  Electronics & Gadgets
+                <Link href="/?category=Jellies" className="text-gray-600 hover:text-[var(--accent)] transition-colors">
+                  Jellies
                 </Link>
               </li>
               <li>
-                <Link href="/?category=Sports+%26+Fitness" className="text-gray-600 hover:text-[var(--accent)] transition-colors">
-                  Sports & Fitness
+                <Link href="/?category=Foods" className="text-gray-600 hover:text-[var(--accent)] transition-colors">
+                  Foods
                 </Link>
               </li>
               <li>
-                <Link href="/?category=Home+%26+Kitchen" className="text-gray-600 hover:text-[var(--accent)] transition-colors">
-                  Home & Kitchen
+                <Link href="/?category=Medicinal+Tinctures" className="text-gray-600 hover:text-[var(--accent)] transition-colors">
+                  Medicinal Tinctures
                 </Link>
               </li>
               <li>
-                <Link href="/?category=Home+%26+Garden" className="text-gray-600 hover:text-[var(--accent)] transition-colors">
-                  Home & Garden
+                <Link href="/?category=Topical+Items" className="text-gray-600 hover:text-[var(--accent)] transition-colors">
+                  Topical Items
                 </Link>
               </li>
               <li>
-                <Link href="/?category=Health+%26+Wellness" className="text-gray-600 hover:text-[var(--accent)] transition-colors">
-                  Health & Wellness
+                <Link href="/?category=Teas" className="text-gray-600 hover:text-[var(--accent)] transition-colors">
+                  Teas
                 </Link>
               </li>
               <li>
-                <Link href="/?category=Jewelry+%26+Accessories" className="text-gray-600 hover:text-[var(--accent)] transition-colors">
-                  Jewelry & Accessories
+                <Link href="/?category=Jewelry" className="text-gray-600 hover:text-[var(--accent)] transition-colors">
+                  Jewelry
                 </Link>
               </li>
               <li>
-                <Link href="/?category=Digital+Products" className="text-gray-600 hover:text-[var(--accent)] transition-colors">
-                  Digital Products
+                <Link href="/?category=Pine+Needle+Crafts" className="text-gray-600 hover:text-[var(--accent)] transition-colors">
+                  Pine Needle Crafts
                 </Link>
               </li>
             </ul>
