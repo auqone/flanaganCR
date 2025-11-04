@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
 import { Mail, Lock, User as UserIcon, Eye, EyeOff } from "lucide-react";
 
@@ -44,13 +45,19 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--muted)] px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center bg-[#f5eddc] px-4 py-12">
       <div className="w-full max-w-md">
         <div className="bg-[var(--background)] rounded-lg shadow-lg p-8">
           {/* Logo */}
           <div className="flex justify-center mb-8">
-            <Link href="/" className="text-2xl font-bold">
-              Shop
+            <Link href="/">
+              <Image
+                src="/logo.png"
+                alt="Flanagan Crafted Naturals"
+                width={150}
+                height={60}
+                className="h-16 w-auto"
+              />
             </Link>
           </div>
 
