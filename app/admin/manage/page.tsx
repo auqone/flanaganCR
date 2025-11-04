@@ -79,6 +79,7 @@ export default function ManageProductsPage() {
 
     try {
       const response = await fetch(`/api/admin/products/${selectedProduct.id}`, {
+        credentials: "include",
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editForm),
@@ -180,6 +181,7 @@ export default function ManageProductsPage() {
     try {
       const response = await fetch(`/api/admin/products/${id}`, {
         method: "DELETE",
+        credentials: "include",
       });
 
       const result = await response.json();
@@ -197,6 +199,7 @@ export default function ManageProductsPage() {
       setDeletingId(null);
     }
   };
+
 
   return (
     <div className="space-y-6">
