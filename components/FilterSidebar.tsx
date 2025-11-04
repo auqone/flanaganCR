@@ -22,44 +22,71 @@ const filters: FilterSection[] = [
     title: "Rating",
     options: ["4+ Stars", "3+ Stars", "2+ Stars", "1+ Stars"],
   },
+  {
+    title: "Certification",
+    options: ["Organic", "Natural", "Conventional"],
+  },
+  {
+    title: "Product Type",
+    options: ["Tincture", "Jam", "Salve", "Tea", "Jewelry", "Craft Item"],
+  },
+  {
+    title: "Potency Level",
+    options: ["Low", "Medium", "High"],
+  },
+  {
+    title: "Availability",
+    options: ["In Stock", "Coming Soon", "Pre-Order"],
+  },
+  {
+    title: "Dietary",
+    options: ["Vegan", "Vegetarian", "Paleo", "Gluten-Free"],
+  },
+  {
+    title: "Key Ingredients",
+    options: ["Elderberry", "Echinacea", "Rose", "Lavender", "Pine Needle", "Honey"],
+  },
+  {
+    title: "Product Format",
+    options: ["Solo Product", "Gift Set", "Bulk Option"],
+  },
 ];
 
 function FilterGroup({ filter }: { filter: FilterSection }) {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const currentCategory = searchParams.get("category");
-  const currentPrice = searchParams.get("price");
-  const currentRating = searchParams.get("rating");
+
+  const getFilterKey = (title: string): string => {
+    const keyMap: { [key: string]: string } = {
+      "Category": "category",
+      "Price Range": "price",
+      "Rating": "rating",
+      "Certification": "certification",
+      "Product Type": "productType",
+      "Potency Level": "potency",
+      "Availability": "availability",
+      "Dietary": "dietary",
+      "Key Ingredients": "ingredients",
+      "Product Format": "format",
+    };
+    return keyMap[title] || title.toLowerCase();
+  };
+
+  const filterKey = getFilterKey(filter.title);
+  const currentValue = searchParams.get(filterKey);
 
   const getCurrentValue = () => {
-    if (filter.title === "Category") return currentCategory || "All";
-    if (filter.title === "Price Range") return currentPrice || "Any";
-    if (filter.title === "Rating") return currentRating || "Any";
-    return "Select";
+    return currentValue || "Any";
   };
 
   const toggleOption = (option: string) => {
     const params = new URLSearchParams(searchParams.toString());
 
-    if (filter.title === "Category") {
-      if (currentCategory === option) {
-        params.delete("category");
-      } else {
-        params.set("category", option);
-      }
-    } else if (filter.title === "Price Range") {
-      if (currentPrice === option) {
-        params.delete("price");
-      } else {
-        params.set("price", option);
-      }
-    } else if (filter.title === "Rating") {
-      if (currentRating === option) {
-        params.delete("rating");
-      } else {
-        params.set("rating", option);
-      }
+    if (currentValue === option) {
+      params.delete(filterKey);
+    } else {
+      params.set(filterKey, option);
     }
 
     const queryString = params.toString();
@@ -69,9 +96,7 @@ function FilterGroup({ filter }: { filter: FilterSection }) {
 
   const clearFilter = () => {
     const params = new URLSearchParams(searchParams.toString());
-    if (filter.title === "Category") params.delete("category");
-    if (filter.title === "Price Range") params.delete("price");
-    if (filter.title === "Rating") params.delete("rating");
+    params.delete(filterKey);
     const queryString = params.toString();
     router.push(queryString ? `/?${queryString}` : "/");
     setIsOpen(false);
@@ -103,9 +128,7 @@ function FilterGroup({ filter }: { filter: FilterSection }) {
                   key={option}
                   onClick={() => toggleOption(option)}
                   className={`w-full text-left px-2 py-1.5 text-sm rounded transition-colors ${
-                    (filter.title === "Category" && currentCategory === option) ||
-                    (filter.title === "Price Range" && currentPrice === option) ||
-                    (filter.title === "Rating" && currentRating === option)
+                    currentValue === option
                       ? "bg-[var(--accent)] text-[var(--background)] font-medium"
                       : "hover:bg-[var(--muted)]"
                   }`}
