@@ -16,15 +16,6 @@ interface ProductFormData {
   description: string;
   features: string[];
   inStock: boolean;
-  variants: Variant[];
-}
-
-interface Variant {
-  id: string;
-  name: string;
-  price?: string;
-  discount?: string;
-  stockQuantity: string;
 }
 
 interface AliExpressData {
@@ -53,7 +44,6 @@ export default function AdminProductsPage() {
     description: "",
     features: [""],
     inStock: true,
-    variants: [],
   });
 
   const [aliExpressData, setAliExpressData] = useState<AliExpressData>({
@@ -325,7 +315,6 @@ export default function AdminProductsPage() {
         description: "",
         features: [""],
         inStock: true,
-        variants: [],
       });
       setAliExpressData({ title: "", description: "", features: "" });
       setOptimizedData(null);
