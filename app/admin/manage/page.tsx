@@ -55,12 +55,19 @@ export default function ManageProductsPage() {
 
   const fetchProducts = async () => {
     setIsLoading(true);
+    setMessage(null);
     try {
       const response = await fetch("/api/products");
+      if (!response.ok) {
+        throw new Error(`Failed to fetch products: ${response.status}`);
+      }
       const data = await response.json();
-      setProducts(data || []);
-    } catch (error) {
-      setMessage({ type: "error", text: "Failed to load products" });
+      const productList = Array.isArray(data) ? data : (data?.products || []);
+      setProducts(productList);
+    } catch (error: any) {
+      console.error("Error fetching products:", error);
+      setMessage({ type: "error", text: error.message || "Failed to load products" });
+      setProducts([]);
     } finally {
       setIsLoading(false);
     }
@@ -326,57 +333,64 @@ export default function ManageProductsPage() {
         </div>
       ) : (
         <div className="grid gap-4">
-          {filteredProducts.map((product) => (
+          {filteredProducts.map((product) => {
+            try {
+              return (
             <div
-              key={product.id}
+              key={product?.id || Math.random()}
               className="bg-[var(--background)] rounded-lg shadow-md p-4 flex items-center gap-4"
             >
               <Image
-                src={product.image || "https://via.placeholder.com/100?text=No+Image"}
-                alt={product.name}
+                src={product?.image || "https://via.placeholder.com/100?text=No+Image"}
+                alt={product?.name || "Product"}
                 width={96}
                 height={96}
                 className="w-24 h-24 object-cover rounded-md"
               />
 
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-lg truncate">{product.name}</h3>
+                <h3 className="font-semibold text-lg truncate">{product?.name || "Unknown"}</h3>
                 <div className="flex items-center gap-4 mt-1 text-sm text-gray-600 dark:text-gray-400">
-                  <span className="font-medium text-green-600">${product.price}</span>
-                  <span>{product.category}</span>
-                  <span>{product.rating} ⭐ ({product.reviews})</span>
+                  <span className="font-medium text-green-600">${product?.price || "N/A"}</span>
+                  <span>{product?.category || "N/A"}</span>
+                  <span>{product?.rating || 0} ⭐ ({product?.reviews || 0})</span>
                   <span
                     className={`px-2 py-1 rounded text-xs font-medium ${
-                      product.inStock
+                      product?.inStock
                         ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200"
                         : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200"
                     }`}
                   >
-                    {product.inStock ? "In Stock" : "Out of Stock"}
+                    {product?.inStock ? "In Stock" : "Out of Stock"}
                   </span>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">ID: {product.id}</p>
+                <p className="text-xs text-gray-500 mt-1">ID: {product?.id || "N/A"}</p>
               </div>
 
               <div className="flex gap-2">
                 <button
-                  onClick={() => openEditModal(product)}
+                  onClick={() => product && openEditModal(product)}
                   className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 transition-colors"
                 >
                   <Edit className="w-4 h-4" />
                   Edit
                 </button>
                 <button
-                  onClick={() => handleDelete(product.id)}
-                  disabled={deletingId === product.id}
+                  onClick={() => product?.id && handleDelete(product.id)}
+                  disabled={deletingId === product?.id}
                   className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Trash2 className="w-4 h-4" />
-                  {deletingId === product.id ? "Deleting..." : "Delete"}
+                  {deletingId === product?.id ? "Deleting..." : "Delete"}
                 </button>
               </div>
             </div>
-          ))}
+              );
+            } catch (error) {
+              console.error("Error rendering product:", error, product);
+              return null;
+            }
+          })}
         </div>
       )}
 
