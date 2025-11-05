@@ -9,7 +9,7 @@ interface Product {
   name: string;
   price: number;
   basePrice?: number;
-  profitMargin?: number;
+  discount?: number;
   image: string;
   images?: string[];
   category: string;
@@ -427,13 +427,13 @@ export default function ManageProductsPage() {
 
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      Profit Margin (%)
+                      Discount (%)
                     </label>
                     <input
                       type="number"
                       step="1"
-                      value={editForm.profitMargin || ""}
-                      onChange={(e) => setEditForm({ ...editForm, profitMargin: parseFloat(e.target.value) })}
+                      value={editForm.discount || ""}
+                      onChange={(e) => setEditForm({ ...editForm, discount: parseFloat(e.target.value) })}
                       className="w-full px-4 py-2 rounded-md border border-[var(--border)] bg-transparent"
                     />
                   </div>
