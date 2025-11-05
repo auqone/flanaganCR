@@ -214,8 +214,8 @@ export default function AdminProductsPage() {
       const formDataToSend = new FormData();
       formDataToSend.append("file", file);
 
-      // Upload to private storage
-      const response = await fetch("/api/admin/private-upload", {
+      // Upload to Cloudinary
+      const response = await fetch("/api/admin/upload-cloudinary", {
         method: "POST",
         credentials: "include",
         body: formDataToSend,
@@ -234,7 +234,7 @@ export default function AdminProductsPage() {
 
       setMessage({
         type: "success",
-        text: `Image uploaded successfully! (${(file.size / 1024 / 1024).toFixed(2)}MB)`
+        text: `Image uploaded to Cloudinary! (${(file.size / 1024 / 1024).toFixed(2)}MB)`
       });
     } catch (err: any) {
       setMessage({ type: "error", text: err.message || "Failed to upload image" });
