@@ -16,7 +16,7 @@ model Product {
   name            String
   price           Float       // Final selling price to customer
   basePrice       Float?      // Cost from AliExpress (for profit tracking)
-  profitMargin    Float?      // Profit margin percentage (e.g., 40 for 40%)
+  discount        Float?      // Discount percentage (replaces profitMargin)
   image           String
   images          String[]    @default([]) // Multiple product images
   category        String
@@ -32,6 +32,7 @@ model Product {
   keywords        String[]    @default([]) // SEO keywords
   metaDescription String?     @db.Text // SEO meta description
   orderItems      OrderItem[]
+  variants        ProductVariant[] // Product variants (sizes, colors, etc.)
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
@@ -188,4 +189,44 @@ model EmailSubscriber {
 
   @@index([email])
   @@index([createdAt])
+}
+
+// Coupon model - stores discount codes
+model Coupon {
+  id              String    @id @default(cuid())
+  code            String    @unique // Coupon code (e.g., "SAVE20")
+  description     String?   @db.Text
+  discountType    String    // "FIXED" or "PERCENTAGE"
+  discountValue   Float     // Fixed amount or percentage (e.g., 20 for 20% or $20)
+  maxUses         Int?      // Maximum number of times coupon can be used (null = unlimited)
+  currentUses     Int       @default(0) // Number of times already used
+  minOrderAmount  Float?    // Minimum order amount to apply coupon
+  maxDiscountAmount Float?  // Maximum discount amount (for percentage discounts)
+  isActive        Boolean   @default(true)
+  startDate       DateTime?
+  endDate         DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([code])
+  @@index([isActive])
+}
+
+// ProductVariant model - stores product variants (size, color, etc.)
+model ProductVariant {
+  id              String   @id @default(cuid())
+  product         Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId       String
+
+  name            String   // e.g., "Size: Large", "Color: Red"
+  sku             String?  // Variant SKU
+  price           Float?   // Variant-specific price (if different from base)
+  discount        Float?   // Variant-specific discount percentage
+  stockQuantity   Int      @default(0)
+  isActive        Boolean  @default(true)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([productId])
 }

@@ -6,7 +6,7 @@ interface ProductData {
   name: string;
   price: number;
   basePrice?: number;
-  profitMargin?: number;
+  discount?: number;
   image: string;
   images?: string[];
   category: string;
@@ -48,7 +48,7 @@ async function handlePOST(request: NextRequest) {
         name: data.name,
         price: Math.round(data.price * 100) / 100,
         basePrice: data.basePrice,
-        profitMargin: data.profitMargin,
+        discount: data.discount,
         image: data.image,
         images: data.images || [data.image],
         category: data.category,

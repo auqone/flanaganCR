@@ -7,7 +7,7 @@ import { Package, Plus, AlertCircle, CheckCircle2, DollarSign, X, Sparkles, Copy
 interface ProductFormData {
   name: string;
   basePrice: string;
-  profitMargin: string;
+  discount: string;
   finalPrice: string;
   image: string;
   category: string;
@@ -16,6 +16,15 @@ interface ProductFormData {
   description: string;
   features: string[];
   inStock: boolean;
+  variants: Variant[];
+}
+
+interface Variant {
+  id: string;
+  name: string;
+  price?: string;
+  discount?: string;
+  stockQuantity: string;
 }
 
 interface AliExpressData {
@@ -35,7 +44,7 @@ export default function AdminProductsPage() {
   const [formData, setFormData] = useState<ProductFormData>({
     name: "",
     basePrice: "",
-    profitMargin: "40",
+    discount: "0",
     finalPrice: "",
     image: "",
     category: "Jellies",
@@ -44,6 +53,7 @@ export default function AdminProductsPage() {
     description: "",
     features: [""],
     inStock: true,
+    variants: [],
   });
 
   const [aliExpressData, setAliExpressData] = useState<AliExpressData>({
@@ -74,25 +84,26 @@ export default function AdminProductsPage() {
     "Pine Needle Crafts",
   ];
 
-  // Calculate final price whenever base price or profit margin changes
-  const calculateFinalPrice = (base: string, margin: string) => {
+  // Calculate final price: basePrice - (basePrice * discount / 100)
+  const calculateFinalPrice = (base: string, discount: string) => {
     const basePrice = parseFloat(base) || 0;
-    const profitPercent = parseFloat(margin) || 0;
-    const finalPrice = basePrice * (1 + profitPercent / 100);
+    const discountPercent = parseFloat(discount) || 0;
+    const discountAmount = (basePrice * discountPercent) / 100;
+    const finalPrice = basePrice - discountAmount;
     return finalPrice.toFixed(2);
   };
 
   const handleBasePriceChange = (value: string) => {
     setFormData((prev) => {
-      const finalPrice = calculateFinalPrice(value, prev.profitMargin);
+      const finalPrice = calculateFinalPrice(value, prev.discount);
       return { ...prev, basePrice: value, finalPrice };
     });
   };
 
-  const handleProfitMarginChange = (value: string) => {
+  const handleDiscountChange = (value: string) => {
     setFormData((prev) => {
       const finalPrice = calculateFinalPrice(prev.basePrice, value);
-      return { ...prev, profitMargin: value, finalPrice };
+      return { ...prev, discount: value, finalPrice };
     });
   };
 
@@ -305,7 +316,7 @@ export default function AdminProductsPage() {
       setFormData({
         name: "",
         basePrice: "",
-        profitMargin: "40",
+        discount: "0",
         finalPrice: "",
         image: "",
         category: "Jellies",
@@ -314,6 +325,7 @@ export default function AdminProductsPage() {
         description: "",
         features: [""],
         inStock: true,
+        variants: [],
       });
       setAliExpressData({ title: "", description: "", features: "" });
       setOptimizedData(null);
@@ -511,17 +523,17 @@ export default function AdminProductsPage() {
               </div>
 
               <div>
-                <label htmlFor="profitMargin" className="block text-sm font-medium mb-2">
-                  Profit Margin (%)
+                <label htmlFor="discount" className="block text-sm font-medium mb-2">
+                  Discount (%)
                 </label>
                 <input
-                  id="profitMargin"
+                  id="discount"
                   type="number"
-                  step="1"
+                  step="0.1"
                   min="0"
-                  max="500"
-                  value={formData.profitMargin}
-                  onChange={(e) => handleProfitMarginChange(e.target.value)}
+                  max="100"
+                  value={formData.discount}
+                  onChange={(e) => handleDiscountChange(e.target.value)}
                   className="w-full px-4 py-3 rounded-md border border-[var(--border)] bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
                 />
               </div>
