@@ -148,11 +148,6 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/careers" className="text-gray-600 hover:text-[var(--accent)] transition-colors">
-                  Careers
-                </Link>
-              </li>
-              <li>
                 <Link href="/blog" className="text-gray-600 hover:text-[var(--accent)] transition-colors">
                   Blog
                 </Link>
@@ -165,11 +160,6 @@ export default function Footer() {
               <li>
                 <Link href="/press" className="text-gray-600 hover:text-[var(--accent)] transition-colors">
                   Press
-                </Link>
-              </li>
-              <li>
-                <Link href="/affiliates" className="text-gray-600 hover:text-[var(--accent)] transition-colors">
-                  Affiliate Program
                 </Link>
               </li>
             </ul>
