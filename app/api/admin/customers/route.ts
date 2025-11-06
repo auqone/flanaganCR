@@ -30,8 +30,7 @@ async function handleGET(request: NextRequest) {
         orders: {
           select: {
             id: true,
-            orderNumber: true,
-            total: true,
+            totalAmount: true,
             status: true,
             createdAt: true,
           },

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { Resend } from "resend";
+import { prisma } from "@/lib/prisma";
 
 // Initialize services lazily to avoid build-time errors
 function getStripe() {
@@ -56,6 +57,28 @@ export async function POST(request: NextRequest) {
       // Retrieve line items from the session
       const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
 
+      // Create order in database
+      const order = await prisma.order.create({
+        data: {
+          stripePaymentId: session.id,
+          stripePaymentIntentId: session.payment_intent as string,
+          customerEmail: session.customer_details?.email || '',
+          customerName: session.customer_details?.name || '',
+          totalAmount: (session.amount_total || 0) / 100,
+          status: 'PAID',
+          shippingAddress: {
+            line1: fullSession.customer_details?.address?.line1 || '',
+            line2: fullSession.customer_details?.address?.line2 || '',
+            city: fullSession.customer_details?.address?.city || '',
+            state: fullSession.customer_details?.address?.state || '',
+            postalCode: fullSession.customer_details?.address?.postal_code || '',
+            country: fullSession.customer_details?.address?.country || '',
+          },
+        }
+      });
+
+      console.log(`Order created in database: ${order.id}`);
+
       // Send confirmation email
       const resend = getResend();
       if (!resend) {
@@ -64,9 +87,9 @@ export async function POST(request: NextRequest) {
       }
 
       await resend.emails.send({
-        from: "Shop <orders@resend.dev>", // You'll update this with your domain
+        from: "Flanagan Crafted Naturals <orders@flanagancostarica.com>",
         to: session.customer_details?.email || "",
-        subject: "Order Confirmation",
+        subject: "Order Confirmation - Flanagan Crafted Naturals",
         html: `
           <!DOCTYPE html>
           <html>
@@ -133,8 +156,9 @@ export async function POST(request: NextRequest) {
                   <p>Thank you for shopping with us!</p>
                 </div>
                 <div class="footer">
-                  <p>&copy; ${new Date().getFullYear()} All rights reserved.</p>
+                  <p>&copy; ${new Date().getFullYear()} Flanagan Crafted Naturals. All rights reserved.</p>
                   <p>This is an automated confirmation email.</p>
+                  <p>Order ID: ${order.id}</p>
                 </div>
               </div>
             </body>

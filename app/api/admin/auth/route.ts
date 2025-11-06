@@ -1,9 +1,24 @@
 import { NextResponse } from "next/server";
 import { authenticateAdmin, setAuthCookie, clearAuthCookie, generateToken } from "@/lib/auth";
+import { checkRateLimit, rateLimits, getClientIp } from "@/lib/rate-limit";
 
 // Login endpoint
 export async function POST(request: Request) {
   try {
+    // Apply rate limiting
+    const clientIp = getClientIp(request);
+    const rateLimitResult = checkRateLimit(clientIp, rateLimits.auth);
+
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        {
+          error: "Too many login attempts. Please try again later.",
+          retryAfter: Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000)
+        },
+        { status: 429 }
+      );
+    }
+
     const { email, password } = await request.json();
 
     if (!email || !password) {

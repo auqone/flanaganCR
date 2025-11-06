@@ -65,34 +65,24 @@ model Customer {
 // Order model - tracks all orders
 model Order {
   id                  String      @id @default(cuid())
-  orderNumber         String      @unique // Human-readable order number (e.g., ORD-1001)
 
-  // Customer information
-  customer            Customer    @relation(fields: [customerId], references: [id])
-  customerId          String
+  // Customer information (simplified for webhook)
+  customerId          String?
+  customer            Customer?   @relation(fields: [customerId], references: [id])
+  customerEmail       String
+  customerName        String
 
   // Order details
   orderItems          OrderItem[]
   status              OrderStatus @default(PENDING)
-  subtotal            Float
-  shippingCost        Float       @default(0)
-  tax                 Float       @default(0)
-  total               Float
+  totalAmount         Float
 
   // Payment information
-  paymentStatus       PaymentStatus @default(PENDING)
-  paymentMethod       String?     // e.g., "stripe", "paypal"
-  stripePaymentId     String?     // Stripe payment intent ID
+  stripePaymentId         String?     @unique // Stripe session ID
+  stripePaymentIntentId   String?     // Stripe payment intent ID
 
-  // Shipping information
-  shippingName        String
-  shippingEmail       String
-  shippingPhone       String?
-  shippingAddress     String
-  shippingCity        String
-  shippingState       String
-  shippingZip         String
-  shippingCountry     String      @default("United States")
+  // Shipping information (JSON for flexibility)
+  shippingAddress     Json
 
   // Fulfillment tracking
   trackingNumber      String?
@@ -111,8 +101,9 @@ model Order {
   deliveredAt         DateTime?
 
   @@index([customerId])
+  @@index([customerEmail])
   @@index([status])
-  @@index([orderNumber])
+  @@index([stripePaymentId])
   @@index([createdAt])
 }
 
@@ -228,5 +219,37 @@ model ProductVariant {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
+  @@index([productId])
+}
+
+// Cart model - stores shopping cart data for abandoned cart tracking
+model Cart {
+  id              String      @id @default(cuid())
+  sessionId       String      @unique // Browser session ID or user ID
+  customerEmail   String?     // Optional email if provided
+  items           CartItem[]
+  total           Float       @default(0)
+  lastUpdated     DateTime    @updatedAt
+  recoveryEmailSent Boolean   @default(false) // Track if recovery email was sent
+  createdAt       DateTime    @default(now())
+
+  @@index([sessionId])
+  @@index([lastUpdated])
+  @@index([recoveryEmailSent])
+}
+
+// CartItem model - individual items in shopping cart
+model CartItem {
+  id              String   @id @default(cuid())
+  cart            Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  cartId          String
+  productId       String
+  productName     String
+  productImage    String
+  price           Float
+  quantity        Int
+  createdAt       DateTime @default(now())
+
+  @@index([cartId])
   @@index([productId])
 }

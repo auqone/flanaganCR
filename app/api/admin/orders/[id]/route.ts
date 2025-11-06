@@ -106,8 +106,8 @@ async function handlePUT(
       try {
         await resend.emails.send({
           from: "Flanagan Crafted Naturals <orders@resend.dev>",
-          to: order.shippingEmail,
-          subject: `Your order ${order.orderNumber} has shipped!`,
+          to: order.customerEmail,
+          subject: `Your order ${order.id} has shipped!`,
           html: `
             <!DOCTYPE html>
             <html>
@@ -130,12 +130,12 @@ async function handlePUT(
                     <h1 style="margin: 10px 0 0 0;">Your Order Has Shipped! 📦</h1>
                   </div>
                   <div class="content">
-                    <p>Hi ${order.shippingName},</p>
+                    <p>Hi ${order.customerName},</p>
                     <p>Great news! Your order from <strong>Flanagan Crafted Naturals</strong> has been shipped and is on its way to you.</p>
 
                     <div class="tracking">
                       <h3>Tracking Information</h3>
-                      <p><strong>Order Number:</strong> ${order.orderNumber}</p>
+                      <p><strong>Order Number:</strong> ${order.id}</p>
                       <p><strong>Tracking Number:</strong> ${data.trackingNumber}</p>
                       ${data.trackingUrl ? `
                         <a href="${data.trackingUrl}" class="button">Track Your Package</a>
@@ -144,10 +144,11 @@ async function handlePUT(
 
                     <p><strong>Shipping Address:</strong></p>
                     <p>
-                      ${order.shippingName}<br>
-                      ${order.shippingAddress}<br>
-                      ${order.shippingCity}, ${order.shippingState} ${order.shippingZip}<br>
-                      ${order.shippingCountry}
+                      ${order.customerName}<br>
+                      ${(order.shippingAddress as any).line1}<br>
+                      ${(order.shippingAddress as any).line2 ? `${(order.shippingAddress as any).line2}<br>` : ''}
+                      ${(order.shippingAddress as any).city}, ${(order.shippingAddress as any).state} ${(order.shippingAddress as any).postalCode}<br>
+                      ${(order.shippingAddress as any).country}
                     </p>
 
                     <p><strong>Items Ordered:</strong></p>
@@ -169,7 +170,7 @@ async function handlePUT(
           `,
         });
 
-        console.log(`Shipping notification sent for order ${order.orderNumber}`);
+        console.log(`Shipping notification sent for order ${order.id}`);
       } catch (emailError) {
         console.error("Error sending shipping notification:", emailError);
         // Don't fail the request if email fails

@@ -14,11 +14,11 @@ async function handleGET(request: NextRequest) {
     // Total revenue
     const totalRevenue = await prisma.order.aggregate({
       where: {
-        paymentStatus: "PAID",
+        status: { in: ["PAID", "PROCESSING", "ORDERED_SUPPLIER", "SHIPPED", "DELIVERED"] },
         createdAt: { gte: startDate },
       },
       _sum: {
-        total: true,
+        totalAmount: true,
       },
     });
 
@@ -49,7 +49,7 @@ async function handleGET(request: NextRequest) {
 
     // Average order value
     const avgOrderValue = totalOrders > 0
-      ? (totalRevenue._sum.total || 0) / totalOrders
+      ? (totalRevenue._sum.totalAmount || 0) / totalOrders
       : 0;
 
     // Top selling products
@@ -58,7 +58,7 @@ async function handleGET(request: NextRequest) {
       where: {
         order: {
           createdAt: { gte: startDate },
-          paymentStatus: "PAID",
+          status: { in: ["PAID", "PROCESSING", "ORDERED_SUPPLIER", "SHIPPED", "DELIVERED"] },
         },
       },
       _sum: {
@@ -101,10 +101,10 @@ async function handleGET(request: NextRequest) {
       dailyRevenue = await prisma.$queryRaw`
         SELECT
           DATE("createdAt") as date,
-          CAST(SUM(total) AS DECIMAL(10,2)) as revenue,
+          CAST(SUM("totalAmount") AS DECIMAL(10,2)) as revenue,
           CAST(COUNT(*) AS INTEGER) as orders
         FROM "Order"
-        WHERE "paymentStatus" = 'PAID'
+        WHERE "status" IN ('PAID', 'PROCESSING', 'ORDERED_SUPPLIER', 'SHIPPED', 'DELIVERED')
           AND "createdAt" >= ${startDate}
         GROUP BY DATE("createdAt")
         ORDER BY DATE("createdAt") ASC
@@ -120,7 +120,6 @@ async function handleGET(request: NextRequest) {
         createdAt: { gte: startDate },
       },
       include: {
-        customer: true,
         orderItems: {
           include: {
             product: true,
@@ -136,7 +135,7 @@ async function handleGET(request: NextRequest) {
     // Calculate profit (if basePrice is available)
     const ordersWithProfit = await prisma.order.findMany({
       where: {
-        paymentStatus: "PAID",
+        status: { in: ["PAID", "PROCESSING", "ORDERED_SUPPLIER", "SHIPPED", "DELIVERED"] },
         createdAt: { gte: startDate },
       },
       include: {
@@ -166,7 +165,7 @@ async function handleGET(request: NextRequest) {
     return NextResponse.json({
       period: periodDays,
       summary: {
-        totalRevenue: Number(totalRevenue._sum.total) || 0,
+        totalRevenue: Number(totalRevenue._sum.totalAmount) || 0,
         totalOrders: totalOrders || 0,
         totalCustomers: totalCustomers || 0,
         avgOrderValue: Number(avgOrderValue) || 0,
