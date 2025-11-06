@@ -8,8 +8,36 @@ import {
   RateLimitConfig,
 } from './rate-limit';
 
+// Admin roles in order of privilege
+export enum AdminRole {
+  STAFF = 'STAFF',
+  ADMIN = 'ADMIN',
+  SUPER_ADMIN = 'SUPER_ADMIN'
+}
+
+// Role hierarchy: each role includes permissions of roles below it
+const roleHierarchy: Record<AdminRole, AdminRole[]> = {
+  [AdminRole.STAFF]: [AdminRole.STAFF],
+  [AdminRole.ADMIN]: [AdminRole.STAFF, AdminRole.ADMIN],
+  [AdminRole.SUPER_ADMIN]: [AdminRole.STAFF, AdminRole.ADMIN, AdminRole.SUPER_ADMIN]
+};
+
+/**
+ * Check if a role has permission to perform an action requiring a minimum role
+ */
+function hasRolePermission(userRole: string, requiredRole: AdminRole): boolean {
+  const userRoleEnum = userRole as AdminRole;
+  if (!roleHierarchy[userRoleEnum]) {
+    return false; // Invalid role
+  }
+  return roleHierarchy[userRoleEnum].includes(requiredRole);
+}
+
 // Middleware to protect admin API routes
-export async function requireAdmin(request: NextRequest): Promise<NextResponse | null> {
+export async function requireAdmin(
+  request: NextRequest,
+  minRole?: AdminRole
+): Promise<NextResponse | null> {
   try {
     const token = request.cookies.get('admin_token')?.value;
     const clientIp = getClientIp(request);
@@ -38,7 +66,21 @@ export async function requireAdmin(request: NextRequest): Promise<NextResponse |
       );
     }
 
-    // Token is valid, allow the request to proceed
+    // Check role-based access if minRole is specified
+    if (minRole && !hasRolePermission(payload.role, minRole)) {
+      logger.warn('Insufficient permissions', {
+        path: request.nextUrl.pathname,
+        ip: clientIp,
+        userRole: payload.role,
+        requiredRole: minRole
+      });
+      return NextResponse.json(
+        { error: 'Forbidden - Insufficient permissions' },
+        { status: 403 }
+      );
+    }
+
+    // Token is valid and role is sufficient, allow the request to proceed
     return null;
   } catch (error) {
     logger.error('Auth middleware error', error, {
@@ -51,12 +93,13 @@ export async function requireAdmin(request: NextRequest): Promise<NextResponse |
   }
 }
 
-// Wrapper function to protect API routes
+// Wrapper function to protect API routes with optional role requirement
 export function withAdminAuth(
-  handler: (request: NextRequest, context?: any) => Promise<NextResponse>
+  handler: (request: NextRequest, context?: any) => Promise<NextResponse>,
+  minRole?: AdminRole
 ) {
   return async (request: NextRequest, context?: any) => {
-    const authCheck = await requireAdmin(request);
+    const authCheck = await requireAdmin(request, minRole);
 
     if (authCheck) {
       return authCheck; // Return the error response

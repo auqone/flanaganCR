@@ -1,13 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { withRateLimit } from "@/lib/api-middleware";
 
 /**
  * Coupon Validation Endpoint (Public)
  * Validates coupon codes during checkout
  * No admin auth required - used by customers
+ *
+ * CRITICAL TODO: This endpoint validates coupons but does NOT increment currentUses.
+ * The coupon usage should be tracked when the order is actually completed (in the webhook).
+ * Current implementation allows unlimited coupon reuse despite usage limits.
+ *
+ * Fix required:
+ * 1. Pass coupon code to Stripe checkout session metadata
+ * 2. In webhook, retrieve coupon and increment currentUses atomically
+ * 3. Add couponCode field to Order model to track which coupon was used
  */
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   try {
     const body = await request.json();
     const { code, orderTotal } = body;
@@ -105,3 +115,10 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+// Apply strict rate limiting to prevent coupon code enumeration attacks
+// Limit: 5 requests per minute per IP
+export const POST = withRateLimit(handlePOST, {
+  maxRequests: 5,
+  interval: 60 * 1000, // 1 minute
+});

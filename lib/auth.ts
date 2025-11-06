@@ -11,7 +11,7 @@ if (!JWT_SECRET) {
   );
 }
 
-const TOKEN_EXPIRY = '7d'; // 7 days - reasonable for admin sessions
+const TOKEN_EXPIRY = '2h'; // 2 hours - more secure for admin sessions
 
 export interface JWTPayload {
   adminId: string;
@@ -105,7 +105,7 @@ export async function setAuthCookie(adminId: string, email: string, role: string
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
-    maxAge: 60 * 60 * 24 * 7, // 7 days
+    maxAge: 60 * 60 * 2, // 2 hours
     path: '/',
   });
 }

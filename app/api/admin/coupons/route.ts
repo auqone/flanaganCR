@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { withAdminAuth } from "@/lib/api-middleware";
+import { withAdminAuth, AdminRole } from "@/lib/api-middleware";
 import { prisma } from "@/lib/prisma";
 
 /**
@@ -58,6 +58,22 @@ async function handlePOST(request: NextRequest) {
       );
     }
 
+    // Security: Validate discount value is non-negative
+    if (discountValue < 0) {
+      return NextResponse.json(
+        { error: "Discount value cannot be negative" },
+        { status: 400 }
+      );
+    }
+
+    // Security: Validate date range
+    if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+      return NextResponse.json(
+        { error: "Start date cannot be after end date" },
+        { status: 400 }
+      );
+    }
+
     // Check if coupon code already exists
     const existing = await prisma.coupon.findUnique({
       where: { code: code.toUpperCase() },
@@ -97,5 +113,6 @@ async function handlePOST(request: NextRequest) {
   }
 }
 
-export const GET = withAdminAuth(handleGET);
-export const POST = withAdminAuth(handlePOST);
+// RBAC: Staff can view, only Admin+ can create coupons
+export const GET = withAdminAuth(handleGET, AdminRole.STAFF);
+export const POST = withAdminAuth(handlePOST, AdminRole.ADMIN);

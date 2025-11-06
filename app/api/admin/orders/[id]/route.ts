@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { withAdminAuth } from "@/lib/api-middleware";
 import { Resend } from "resend";
+import { escapeHtml } from "@/lib/email-utils";
 
 const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
@@ -130,31 +131,31 @@ async function handlePUT(
                     <h1 style="margin: 10px 0 0 0;">Your Order Has Shipped! 📦</h1>
                   </div>
                   <div class="content">
-                    <p>Hi ${order.customerName},</p>
+                    <p>Hi ${escapeHtml(order.customerName)},</p>
                     <p>Great news! Your order from <strong>Flanagan Crafted Naturals</strong> has been shipped and is on its way to you.</p>
 
                     <div class="tracking">
                       <h3>Tracking Information</h3>
-                      <p><strong>Order Number:</strong> ${order.id}</p>
-                      <p><strong>Tracking Number:</strong> ${data.trackingNumber}</p>
+                      <p><strong>Order Number:</strong> ${escapeHtml(order.id)}</p>
+                      <p><strong>Tracking Number:</strong> ${escapeHtml(data.trackingNumber)}</p>
                       ${data.trackingUrl ? `
-                        <a href="${data.trackingUrl}" class="button">Track Your Package</a>
+                        <a href="${escapeHtml(data.trackingUrl)}" class="button">Track Your Package</a>
                       ` : ''}
                     </div>
 
                     <p><strong>Shipping Address:</strong></p>
                     <p>
-                      ${order.customerName}<br>
-                      ${(order.shippingAddress as any).line1}<br>
-                      ${(order.shippingAddress as any).line2 ? `${(order.shippingAddress as any).line2}<br>` : ''}
-                      ${(order.shippingAddress as any).city}, ${(order.shippingAddress as any).state} ${(order.shippingAddress as any).postalCode}<br>
-                      ${(order.shippingAddress as any).country}
+                      ${escapeHtml(order.customerName)}<br>
+                      ${escapeHtml((order.shippingAddress as any).line1)}<br>
+                      ${(order.shippingAddress as any).line2 ? `${escapeHtml((order.shippingAddress as any).line2)}<br>` : ''}
+                      ${escapeHtml((order.shippingAddress as any).city)}, ${escapeHtml((order.shippingAddress as any).state)} ${escapeHtml((order.shippingAddress as any).postalCode)}<br>
+                      ${escapeHtml((order.shippingAddress as any).country)}
                     </p>
 
                     <p><strong>Items Ordered:</strong></p>
                     <ul>
                       ${order.orderItems.map((item: any) => `
-                        <li>${item.productName} × ${item.quantity}</li>
+                        <li>${escapeHtml(item.productName)} × ${item.quantity}</li>
                       `).join('')}
                     </ul>
 

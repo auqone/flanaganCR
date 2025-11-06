@@ -79,6 +79,8 @@ model Order {
   orderItems          OrderItem[]
   status              OrderStatus @default(PENDING)
   totalAmount         Float
+  couponCode          String?     // Coupon code used (if any)
+  discountAmount      Float?      // Actual discount applied
 
   // Payment information
   stripePaymentId         String?     @unique // Stripe session ID
@@ -108,6 +110,7 @@ model Order {
   @@index([status])
   @@index([stripePaymentId])
   @@index([createdAt])
+  @@index([couponCode])
 }
 
 // OrderItem model - individual items within an order
@@ -289,4 +292,21 @@ enum ReviewStatus {
   APPROVED      // Approved and visible
   REJECTED      // Rejected by moderator
   FLAGGED       // Flagged for review
+}
+
+// FooterLink model - editable footer navigation links
+model FooterLink {
+  id          String   @id @default(cuid())
+  section     String   // e.g., "Shop", "Customer Service", "Company"
+  label       String   // Link text
+  url         String   // Link URL
+  order       Int      @default(0) // Display order within section
+  isActive    Boolean  @default(true)
+  openInNewTab Boolean @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([section])
+  @@index([order])
+  @@index([isActive])
 }

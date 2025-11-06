@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
+import { escapeHtml, formatPrice, formatDate } from "@/lib/email-utils";
 
 // Initialize services lazily to avoid build-time errors
 function getStripe() {
@@ -57,6 +58,26 @@ export async function POST(request: NextRequest) {
       // Retrieve line items from the session
       const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
 
+      // Extract coupon code and discount from metadata if present
+      const couponCode = fullSession.metadata?.couponCode;
+      const discountAmount = fullSession.metadata?.discountAmount
+        ? parseFloat(fullSession.metadata.discountAmount)
+        : null;
+
+      // If coupon was used, increment its usage counter atomically
+      if (couponCode) {
+        try {
+          await prisma.coupon.update({
+            where: { code: couponCode },
+            data: { currentUses: { increment: 1 } },
+          });
+          console.log(`Incremented usage for coupon: ${couponCode}`);
+        } catch (error) {
+          console.error(`Failed to increment coupon usage for ${couponCode}:`, error);
+          // Don't fail the order if coupon update fails
+        }
+      }
+
       // Create order in database
       const order = await prisma.order.create({
         data: {
@@ -65,6 +86,8 @@ export async function POST(request: NextRequest) {
           customerEmail: session.customer_details?.email || '',
           customerName: session.customer_details?.name || '',
           totalAmount: (session.amount_total || 0) / 100,
+          couponCode: couponCode || null,
+          discountAmount: discountAmount,
           status: 'PAID',
           shippingAddress: {
             line1: fullSession.customer_details?.address?.line1 || '',
@@ -111,36 +134,36 @@ export async function POST(request: NextRequest) {
                   <h1>Order Confirmed!</h1>
                 </div>
                 <div class="content">
-                  <p>Hi ${session.customer_details?.name || "there"},</p>
+                  <p>Hi ${escapeHtml(session.customer_details?.name) || "there"},</p>
                   <p>Thank you for your order! We're excited to get your items to you.</p>
 
                   <div class="order-details">
                     <h2>Order Details</h2>
-                    <p><strong>Order ID:</strong> ${session.id}</p>
-                    <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+                    <p><strong>Order ID:</strong> ${escapeHtml(session.id)}</p>
+                    <p><strong>Date:</strong> ${formatDate(new Date())}</p>
 
                     <h3>Items:</h3>
                     ${lineItems.data.map(item => `
                       <div class="item">
-                        <strong>${item.description}</strong><br>
-                        Quantity: ${item.quantity} × $${((item.amount_total || 0) / 100 / (item.quantity || 1)).toFixed(2)}
-                        = $${((item.amount_total || 0) / 100).toFixed(2)}
+                        <strong>${escapeHtml(item.description)}</strong><br>
+                        Quantity: ${item.quantity} × ${formatPrice((item.amount_total || 0) / 100 / (item.quantity || 1))}
+                        = ${formatPrice((item.amount_total || 0) / 100)}
                       </div>
                     `).join('')}
 
                     <div class="total">
-                      Total: $${((session.amount_total || 0) / 100).toFixed(2)}
+                      Total: ${formatPrice((session.amount_total || 0) / 100)}
                     </div>
                   </div>
 
                   <div class="order-details">
                     <h3>Shipping Address</h3>
                     <p>
-                      ${fullSession.customer_details?.name}<br>
-                      ${fullSession.customer_details?.address?.line1 || ''}<br>
-                      ${fullSession.customer_details?.address?.line2 ? fullSession.customer_details.address.line2 + '<br>' : ''}
-                      ${fullSession.customer_details?.address?.city || ''}, ${fullSession.customer_details?.address?.state || ''} ${fullSession.customer_details?.address?.postal_code || ''}<br>
-                      ${fullSession.customer_details?.address?.country || ''}
+                      ${escapeHtml(fullSession.customer_details?.name)}<br>
+                      ${escapeHtml(fullSession.customer_details?.address?.line1)}<br>
+                      ${fullSession.customer_details?.address?.line2 ? escapeHtml(fullSession.customer_details.address.line2) + '<br>' : ''}
+                      ${escapeHtml(fullSession.customer_details?.address?.city)}, ${escapeHtml(fullSession.customer_details?.address?.state)} ${escapeHtml(fullSession.customer_details?.address?.postal_code)}<br>
+                      ${escapeHtml(fullSession.customer_details?.address?.country)}
                     </p>
                   </div>
 
@@ -158,7 +181,7 @@ export async function POST(request: NextRequest) {
                 <div class="footer">
                   <p>&copy; ${new Date().getFullYear()} Flanagan Crafted Naturals. All rights reserved.</p>
                   <p>This is an automated confirmation email.</p>
-                  <p>Order ID: ${order.id}</p>
+                  <p>Order ID: ${escapeHtml(order.id)}</p>
                 </div>
               </div>
             </body>

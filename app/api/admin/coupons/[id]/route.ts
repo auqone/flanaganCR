@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { withAdminAuth } from "@/lib/api-middleware";
+import { withAdminAuth, AdminRole } from "@/lib/api-middleware";
 import { prisma } from "@/lib/prisma";
 
 /**
@@ -48,9 +48,43 @@ async function handlePUT(
     const { id } = await params;
     const body = await request.json();
 
+    // Security: Validate discount value is non-negative
+    if (body.discountValue !== undefined && body.discountValue < 0) {
+      return NextResponse.json(
+        { error: "Discount value cannot be negative" },
+        { status: 400 }
+      );
+    }
+
+    // Security: Validate date range
+    if (body.startDate && body.endDate && new Date(body.startDate) > new Date(body.endDate)) {
+      return NextResponse.json(
+        { error: "Start date cannot be after end date" },
+        { status: 400 }
+      );
+    }
+
+    // Security: Check if code is being changed to an existing code
+    if (body.code) {
+      const existing = await prisma.coupon.findFirst({
+        where: {
+          code: body.code.toUpperCase(),
+          NOT: { id }
+        }
+      });
+
+      if (existing) {
+        return NextResponse.json(
+          { error: "Coupon code already exists" },
+          { status: 400 }
+        );
+      }
+    }
+
     const coupon = await prisma.coupon.update({
       where: { id },
       data: {
+        ...(body.code && { code: body.code.toUpperCase() }),
         description: body.description,
         discountType: body.discountType,
         discountValue: body.discountValue,
@@ -100,6 +134,7 @@ async function handleDELETE(
   }
 }
 
-export const GET = withAdminAuth(handleGET);
-export const PUT = withAdminAuth(handlePUT);
-export const DELETE = withAdminAuth(handleDELETE);
+// RBAC: Staff can view, only Admin+ can modify/delete
+export const GET = withAdminAuth(handleGET, AdminRole.STAFF);
+export const PUT = withAdminAuth(handlePUT, AdminRole.ADMIN);
+export const DELETE = withAdminAuth(handleDELETE, AdminRole.ADMIN);

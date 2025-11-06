@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readFile } from "fs/promises";
-import { join } from "path";
+import { join, resolve, normalize } from "path";
 import { existsSync } from "fs";
 
 /**
@@ -24,15 +24,17 @@ export async function GET(
     const { filename } = await params;
 
     // Security: Validate filename to prevent directory traversal
-    if (!filename || filename.includes("..") || filename.includes("/")) {
+    if (!filename || filename.includes("..") || filename.includes("/") || filename.includes("\\")) {
       return new NextResponse("Invalid filename", { status: 400 });
     }
 
-    // Construct full file path
-    const filepath = join(PRIVATE_IMAGES_DIR, filename);
+    // Construct full file path and normalize it
+    const filepath = normalize(resolve(join(PRIVATE_IMAGES_DIR, filename)));
+    const normalizedBaseDir = normalize(resolve(PRIVATE_IMAGES_DIR));
 
     // Security: Ensure file is within the private images directory
-    if (!filepath.startsWith(PRIVATE_IMAGES_DIR)) {
+    // Use normalized paths to prevent traversal attacks on Windows/Unix
+    if (!filepath.startsWith(normalizedBaseDir + (process.platform === 'win32' ? '\\' : '/'))) {
       return new NextResponse("Access denied", { status: 403 });
     }
 

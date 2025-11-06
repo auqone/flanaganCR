@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { withAdminAuth } from "@/lib/api-middleware";
+import { withAdminAuth, AdminRole } from "@/lib/api-middleware";
 
 async function handleGET(request: NextRequest) {
   try {
@@ -185,4 +185,5 @@ async function handleGET(request: NextRequest) {
   }
 }
 
-export const GET = withAdminAuth(handleGET);
+// RBAC: Only Admin+ can view company analytics (revenue, profit, etc.)
+export const GET = withAdminAuth(handleGET, AdminRole.ADMIN);

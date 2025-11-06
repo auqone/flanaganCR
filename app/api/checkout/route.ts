@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
       apiVersion: "2025-09-30.clover",
     });
 
-    const { items } = await request.json();
+    const { items, couponCode, discountAmount } = await request.json();
 
     // Create line items for Stripe
     const lineItems = items.map((item: any) => ({
@@ -32,6 +32,10 @@ export async function POST(request: NextRequest) {
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || request.headers.get("origin")}/checkout`,
       shipping_address_collection: {
         allowed_countries: ["US", "CA", "GB", "AU"],
+      },
+      metadata: {
+        ...(couponCode && { couponCode }),
+        ...(discountAmount && { discountAmount: discountAmount.toString() }),
       },
     });
 
