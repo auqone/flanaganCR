@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { syncInventory } from '@/lib/automation/inventorySync';
+import { monitorInventory } from '@/lib/automation/inventoryMonitoring';
+import { Resend } from 'resend';
 
 /**
  * Cron job endpoint for syncing inventory
@@ -29,20 +31,36 @@ export async function GET(request: Request) {
   }
 
   try {
-    const result = await syncInventory();
+    // Initialize Resend
+    const resend = process.env.RESEND_API_KEY
+      ? new Resend(process.env.RESEND_API_KEY)
+      : null;
+
+    // Sync inventory (placeholder - customize based on your needs)
+    const syncResult = await syncInventory();
+
+    // Monitor inventory and send low stock alerts
+    const monitorResult = await monitorInventory(resend);
 
     return NextResponse.json({
       success: true,
-      updated: result.updated,
-      errors: result.errors,
+      sync: {
+        updated: syncResult.updated,
+        errors: syncResult.errors,
+      },
+      monitoring: {
+        lowStockProducts: monitorResult.lowStockProducts,
+        outOfStock: monitorResult.outOfStock,
+        alertsSent: monitorResult.alertsSent,
+      },
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('Inventory sync failed:', error);
+    console.error('Inventory sync/monitoring failed:', error);
 
     return NextResponse.json({
       success: false,
-      error: 'Inventory sync failed'
+      error: 'Inventory sync/monitoring failed'
     }, { status: 500 });
   }
 }

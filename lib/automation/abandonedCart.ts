@@ -1,112 +1,329 @@
-import { Cart } from './types';
+import { prisma } from "@/lib/prisma";
+import { Resend } from "resend";
+import {
+  generateAbandonedCartEmail,
+  generateFollowUpAbandonedCartEmail,
+  AbandonedCartEmailData,
+} from "@/lib/email/templates/abandonedCart";
 
 /**
- * Find abandoned carts (not updated in 1+ hours with items)
+ * Find abandoned carts (not updated in 1+ hours with items, no recovery email sent)
  */
-export async function findAbandonedCarts(): Promise<Cart[]> {
+export async function findAbandonedCarts() {
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+  const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-  // This would query your database
-  // const carts = await db.cart.findMany({
-  //   where: {
-  //     lastUpdated: { lt: oneHourAgo },
-  //     items: { some: {} },
-  //     recoveryEmailSent: false
-  //   }
-  // });
+  try {
+    // First reminder: 1 hour after abandonment
+    const firstReminderCarts = await prisma.cart.findMany({
+      where: {
+        lastUpdated: {
+          lt: oneHourAgo,
+          gte: twentyFourHoursAgo,
+        },
+        recoveryEmailSent: false,
+        customerEmail: { not: null },
+      },
+      include: {
+        items: true,
+      },
+    });
 
-  // Mock data for example
-  const carts: Cart[] = [];
+    return firstReminderCarts;
+  } catch (error) {
+    console.error("Error finding abandoned carts:", error);
+    return [];
+  }
+}
 
-  return carts;
+/**
+ * Find carts for follow-up email (24 hours after first email)
+ */
+export async function findCartsForFollowUp() {
+  const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
+
+  try {
+    const followUpCarts = await prisma.cart.findMany({
+      where: {
+        lastUpdated: {
+          lt: twentyFourHoursAgo,
+          gte: fortyEightHoursAgo,
+        },
+        recoveryEmailSent: true,
+        customerEmail: { not: null },
+      },
+      include: {
+        items: true,
+      },
+    });
+
+    return followUpCarts;
+  } catch (error) {
+    console.error("Error finding follow-up carts:", error);
+    return [];
+  }
+}
+
+/**
+ * Send abandoned cart recovery email
+ */
+export async function sendAbandonedCartEmail(
+  cart: any,
+  resend: Resend | null,
+  options?: {
+    discountCode?: string;
+    discountAmount?: number;
+    isFollowUp?: boolean;
+  }
+): Promise<boolean> {
+  if (!resend) {
+    console.warn("Resend not configured, skipping email");
+    return false;
+  }
+
+  if (!cart.customerEmail) {
+    console.warn(`Cart ${cart.id} has no customer email`);
+    return false;
+  }
+
+  try {
+    const emailData: AbandonedCartEmailData = {
+      customerEmail: cart.customerEmail,
+      cartItems: cart.items.map((item: any) => ({
+        productName: item.productName,
+        productImage: item.productImage,
+        price: item.price,
+        quantity: item.quantity,
+      })),
+      cartTotal: cart.total,
+      recoveryUrl: `${process.env.NEXT_PUBLIC_APP_URL}/cart?session=${cart.sessionId}`,
+      discountCode: options?.discountCode,
+      discountAmount: options?.discountAmount,
+    };
+
+    const emailHtml = options?.isFollowUp
+      ? generateFollowUpAbandonedCartEmail(emailData)
+      : generateAbandonedCartEmail(emailData);
+
+    const subject = options?.isFollowUp
+      ? "⏰ Last Chance - Your Cart Expires Soon!"
+      : "🛒 You Left Something Behind - Complete Your Purchase";
+
+    await resend.emails.send({
+      from: "Flanagan Crafted Naturals <orders@flanagancostarica.com>",
+      to: cart.customerEmail,
+      subject,
+      html: emailHtml,
+    });
+
+    console.log(`Sent ${options?.isFollowUp ? "follow-up" : "initial"} recovery email to ${cart.customerEmail}`);
+    return true;
+  } catch (error) {
+    console.error(`Failed to send recovery email for cart ${cart.id}:`, error);
+    return false;
+  }
 }
 
 /**
  * Start abandoned cart recovery sequence
  */
-export async function startAbandonedCartRecovery(): Promise<number> {
-  console.log('Starting abandoned cart recovery...');
+export async function startAbandonedCartRecovery(resend: Resend | null): Promise<number> {
+  console.log("Starting abandoned cart recovery...");
 
-  const abandonedCarts = await findAbandonedCarts();
-  let recovered = 0;
+  try {
+    // Send initial recovery emails (1 hour after abandonment)
+    const abandonedCarts = await findAbandonedCarts();
+    let emailsSent = 0;
 
-  for (const cart of abandonedCarts) {
-    try {
-      // Send recovery email
-      // await sendAbandonedCartEmail(cart);
+    for (const cart of abandonedCarts) {
+      const sent = await sendAbandonedCartEmail(cart, resend);
 
-      // Mark as sent
-      // await markRecoveryEmailSent(cart.id);
-
-      recovered++;
-      console.log(`Sent recovery email for cart ${cart.id}`);
-    } catch (error) {
-      console.error(`Failed to send recovery email for cart ${cart.id}:`, error);
+      if (sent) {
+        // Mark recovery email as sent
+        await prisma.cart.update({
+          where: { id: cart.id },
+          data: { recoveryEmailSent: true },
+        });
+        emailsSent++;
+      }
     }
+
+    // Send follow-up emails (24 hours after first email) with discount
+    const followUpCarts = await findCartsForFollowUp();
+
+    for (const cart of followUpCarts) {
+      const sent = await sendAbandonedCartEmail(cart, resend, {
+        discountCode: "COMEBACK10",
+        discountAmount: cart.total * 0.1,
+        isFollowUp: true,
+      });
+
+      if (sent) {
+        emailsSent++;
+      }
+    }
+
+    console.log(
+      `Abandoned cart recovery complete: ${emailsSent} emails sent (${abandonedCarts.length} initial, ${followUpCarts.length} follow-ups)`
+    );
+
+    return emailsSent;
+  } catch (error) {
+    console.error("Abandoned cart recovery failed:", error);
+    return 0;
   }
-
-  console.log(`Abandoned cart recovery complete: ${recovered} emails sent`);
-
-  return recovered;
-}
-
-/**
- * Schedule follow-up emails
- */
-export async function scheduleFollowUpEmails(cartId: string): Promise<void> {
-  // Email 1: After 1 hour (already sent by startAbandonedCartRecovery)
-
-  // Email 2: After 24 hours with 10% discount
-  setTimeout(async () => {
-    // await sendAbandonedCartEmail(cart, {
-    //   discountCode: 'COMEBACK10',
-    //   discountPercent: 10
-    // });
-    console.log(`Sent 24-hour follow-up for cart ${cartId}`);
-  }, 24 * 60 * 60 * 1000);
-
-  // Email 3: After 3 days with 15% discount (last chance)
-  setTimeout(async () => {
-    // await sendAbandonedCartEmail(cart, {
-    //   discountCode: 'LASTCHANCE15',
-    //   discountPercent: 15
-    // });
-    console.log(`Sent 3-day follow-up for cart ${cartId}`);
-  }, 3 * 24 * 60 * 60 * 1000);
 }
 
 /**
  * Calculate cart abandonment rate
  */
 export async function calculateAbandonmentRate(): Promise<number> {
-  // const totalCarts = await db.cart.count();
-  // const completedOrders = await db.order.count();
+  try {
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-  // const rate = ((totalCarts - completedOrders) / totalCarts) * 100;
+    const totalCarts = await prisma.cart.count({
+      where: {
+        createdAt: { gte: thirtyDaysAgo },
+      },
+    });
 
-  // return Math.round(rate * 100) / 100;
+    const completedOrders = await prisma.order.count({
+      where: {
+        createdAt: { gte: thirtyDaysAgo },
+        status: { in: ["PAID", "PROCESSING", "SHIPPED", "DELIVERED"] },
+      },
+    });
 
-  return 0; // Placeholder
+    if (totalCarts === 0) return 0;
+
+    const rate = ((totalCarts - completedOrders) / totalCarts) * 100;
+    return Math.round(rate * 100) / 100;
+  } catch (error) {
+    console.error("Error calculating abandonment rate:", error);
+    return 0;
+  }
 }
 
 /**
  * Generate abandoned cart report
  */
-export async function generateAbandonedCartReport(): Promise<string> {
-  const rate = await calculateAbandonmentRate();
-  const recovered = await findAbandonedCarts();
+export async function generateAbandonedCartReport(): Promise<{
+  rate: number;
+  activeCarts: number;
+  potentialRevenue: number;
+  topProducts: Array<{ productName: string; count: number }>;
+}> {
+  try {
+    const rate = await calculateAbandonmentRate();
 
-  return `
-    Abandoned Cart Report
-    =====================
+    const activeCarts = await prisma.cart.findMany({
+      where: {
+        recoveryEmailSent: false,
+      },
+      include: {
+        items: true,
+      },
+    });
 
-    Abandonment Rate: ${rate}%
-    Active Abandoned Carts: ${recovered.length}
+    const potentialRevenue = activeCarts.reduce(
+      (sum, cart) => sum + cart.total,
+      0
+    );
 
-    Top Abandoned Products:
-    (Would show top 5 products left in carts)
+    // Get top abandoned products
+    const allItems = activeCarts.flatMap((cart) => cart.items);
+    const productCounts: { [key: string]: number } = {};
 
-    Recovery Opportunities:
-    Potential Revenue: $${recovered.reduce((sum, cart) => sum + cart.total, 0).toFixed(2)}
-  `;
+    allItems.forEach((item: any) => {
+      productCounts[item.productName] =
+        (productCounts[item.productName] || 0) + 1;
+    });
+
+    const topProducts = Object.entries(productCounts)
+      .map(([productName, count]) => ({ productName, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    return {
+      rate,
+      activeCarts: activeCarts.length,
+      potentialRevenue,
+      topProducts,
+    };
+  } catch (error) {
+    console.error("Error generating abandoned cart report:", error);
+    return {
+      rate: 0,
+      activeCarts: 0,
+      potentialRevenue: 0,
+      topProducts: [],
+    };
+  }
+}
+
+/**
+ * Create or update cart in database
+ */
+export async function upsertCart(data: {
+  sessionId: string;
+  customerEmail?: string;
+  items: Array<{
+    productId: string;
+    productName: string;
+    productImage: string;
+    price: number;
+    quantity: number;
+  }>;
+  total: number;
+}): Promise<void> {
+  try {
+    const existingCart = await prisma.cart.findUnique({
+      where: { sessionId: data.sessionId },
+    });
+
+    if (existingCart) {
+      // Update existing cart
+      await prisma.cart.update({
+        where: { sessionId: data.sessionId },
+        data: {
+          customerEmail: data.customerEmail,
+          total: data.total,
+          lastUpdated: new Date(),
+          items: {
+            deleteMany: {},
+            create: data.items,
+          },
+        },
+      });
+    } else {
+      // Create new cart
+      await prisma.cart.create({
+        data: {
+          sessionId: data.sessionId,
+          customerEmail: data.customerEmail,
+          total: data.total,
+          items: {
+            create: data.items,
+          },
+        },
+      });
+    }
+  } catch (error) {
+    console.error("Error upserting cart:", error);
+  }
+}
+
+/**
+ * Delete cart after successful checkout
+ */
+export async function deleteCart(sessionId: string): Promise<void> {
+  try {
+    await prisma.cart.delete({
+      where: { sessionId },
+    });
+    console.log(`Deleted cart for session ${sessionId}`);
+  } catch (error) {
+    console.error(`Error deleting cart for session ${sessionId}:`, error);
+  }
 }

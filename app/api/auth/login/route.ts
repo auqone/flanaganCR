@@ -1,22 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import { checkRateLimit, rateLimits, getClientIp } from "@/lib/rate-limit";
+import { withRateLimit } from "@/lib/upstash-rate-limit";
 
 export async function POST(request: NextRequest) {
   try {
-    // Apply rate limiting
-    const clientIp = getClientIp(request);
-    const rateLimitResult = checkRateLimit(clientIp, rateLimits.auth);
-
-    if (!rateLimitResult.success) {
-      return NextResponse.json(
-        {
-          error: "Too many login attempts. Please try again later.",
-          retryAfter: Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000)
-        },
-        { status: 429 }
-      );
+    // Apply rate limiting with Upstash Redis
+    const rateLimitCheck = await withRateLimit(request, "auth");
+    if (!rateLimitCheck.allowed) {
+      return rateLimitCheck.response!;
     }
 
     const { email, password } = await request.json();

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { startAbandonedCartRecovery } from '@/lib/automation/abandonedCart';
+import { Resend } from 'resend';
 
 /**
  * Cron job endpoint for abandoned cart recovery
@@ -29,7 +30,16 @@ export async function GET(request: Request) {
   }
 
   try {
-    const emailsSent = await startAbandonedCartRecovery();
+    // Initialize Resend
+    const resend = process.env.RESEND_API_KEY
+      ? new Resend(process.env.RESEND_API_KEY)
+      : null;
+
+    if (!resend) {
+      console.warn('Resend API key not configured');
+    }
+
+    const emailsSent = await startAbandonedCartRecovery(resend);
 
     return NextResponse.json({
       success: true,
