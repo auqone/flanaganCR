@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Facebook, Twitter, Instagram, Youtube } from "lucide-react";
 
+// Force rebuild - Nov 6, 2025
 export default function Footer() {
   return (
     <footer className="border-t border-[var(--border)] bg-[var(--muted)] mt-auto">
