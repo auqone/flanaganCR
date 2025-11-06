@@ -5,7 +5,11 @@ import BuyNowButton from "@/components/BuyNowButton";
 import ReviewSection from "@/components/ReviewSection";
 import Footer from "@/components/Footer";
 import { Review, ReviewStats } from "@/types/review";
-import { products } from "@/lib/products";
+import { prisma } from "@/lib/prisma";
+
+// Force dynamic rendering for product pages
+export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
 
 // Sample reviews data
 const sampleReviews: { [key: string]: Review[] } = {
@@ -59,7 +63,10 @@ export default async function ProductPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const product = products.find((p) => p.id === id);
+
+  const product = await prisma.product.findUnique({
+    where: { id },
+  });
 
   if (!product) {
     notFound();
