@@ -63,6 +63,49 @@ export default function AdminProductsPage() {
   const [loadingImages, setLoadingImages] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dragRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      // Trigger the same upload handler as clicking
+      const changeEvent = new Event('change', { bubbles: true });
+      Object.defineProperty(changeEvent, 'target', {
+        writable: false,
+        value: { files: files },
+      });
+      if (fileInputRef.current) {
+        fileInputRef.current.dispatchEvent(changeEvent as any);
+        // Also directly call the handler
+        await handleImageUpload({
+          target: { files } as any
+        } as React.ChangeEvent<HTMLInputElement>);
+      }
+    }
+  };
 
   const categories = [
     "Jellies",
@@ -196,14 +239,22 @@ export default function AdminProductsPage() {
     if (!file) return;
 
     // Validate file
-    if (!file.type.startsWith("image/")) {
-      setMessage({ type: "error", text: "File must be an image (PNG, JPG, GIF, etc.)" });
+    const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/avif"];
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      setMessage({
+        type: "error",
+        text: `Invalid file type. Allowed: JPEG, PNG, GIF, WebP, AVIF. You selected: ${file.type}`
+      });
       return;
     }
 
     const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
     if (file.size > MAX_FILE_SIZE) {
-      setMessage({ type: "error", text: "File size must be less than 10MB" });
+      const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+      setMessage({
+        type: "error",
+        text: `File size (${fileSizeMB}MB) exceeds the 10MB limit. Please compress the image and try again.`
+      });
       return;
     }
 
@@ -224,7 +275,12 @@ export default function AdminProductsPage() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || "Failed to upload image");
+        const errorMessage = result.error || "Failed to upload image";
+        throw new Error(errorMessage);
+      }
+
+      if (!result.url) {
+        throw new Error("No image URL returned from upload. Please try again.");
       }
 
       setFormData({
@@ -232,12 +288,16 @@ export default function AdminProductsPage() {
         image: result.url,
       });
 
+      const uploadedSize = result.size ? (result.size / 1024 / 1024).toFixed(2) : "unknown";
+      const dimensions = result.width && result.height ? ` • ${result.width}x${result.height}px` : "";
       setMessage({
         type: "success",
-        text: `Image uploaded to Cloudinary! (${(file.size / 1024 / 1024).toFixed(2)}MB)`
+        text: `Image uploaded to Cloudinary with auto-optimization! (${uploadedSize}MB${dimensions})`
       });
     } catch (err: any) {
-      setMessage({ type: "error", text: err.message || "Failed to upload image" });
+      const errorMessage = err.message || "Failed to upload image";
+      console.error("Image upload error:", errorMessage);
+      setMessage({ type: "error", text: errorMessage });
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) {
@@ -546,20 +606,27 @@ export default function AdminProductsPage() {
           <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-lg p-6 border border-blue-200 dark:border-blue-800">
             <div className="flex items-center gap-2 mb-4">
               <Upload className="w-6 h-6 text-blue-600" />
-              <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100">Private Product Image Hosting</h3>
+              <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100">Product Image Hosting - Cloudinary</h3>
             </div>
 
             <p className="text-sm text-blue-800 dark:text-blue-200 mb-4">
-              Images are stored privately on your server at <code className="bg-blue-100 dark:bg-blue-900 px-2 py-1 rounded text-xs font-mono">/private-images</code>
+              Images are uploaded securely to Cloudinary with automatic optimization, fast CDN delivery, and responsive image support.
             </p>
 
             <div className="space-y-4">
               {/* Upload Section */}
               <div>
                 <label className="block text-sm font-medium text-blue-900 dark:text-blue-100 mb-3">
-                  Upload Image to Your Server
+                  Upload Image to Cloudinary
                 </label>
-                <div className="relative">
+                <div
+                  ref={dragRef}
+                  onDragEnter={handleDragEnter}
+                  onDragLeave={handleDragLeave}
+                  onDragOver={handleDragOver}
+                  onDrop={handleDrop}
+                  className="relative"
+                >
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -573,12 +640,16 @@ export default function AdminProductsPage() {
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploading}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-blue-300 dark:border-blue-700 rounded-lg bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className={`w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                      isDragging
+                        ? "border-blue-500 bg-blue-100 dark:bg-blue-900/50"
+                        : "border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50"
+                    }`}
                   >
                     {isUploading ? (
                       <>
                         <Loader className="w-5 h-5 animate-spin text-blue-600" />
-                        <span className="text-sm font-medium text-blue-900 dark:text-blue-100">Uploading to your server...</span>
+                        <span className="text-sm font-medium text-blue-900 dark:text-blue-100">Uploading to Cloudinary...</span>
                       </>
                     ) : (
                       <>
@@ -587,7 +658,7 @@ export default function AdminProductsPage() {
                       </>
                     )}
                   </button>
-                  <p className="mt-2 text-xs text-blue-700 dark:text-blue-300">PNG, JPG, GIF, WebP up to 10MB • Stored on your server</p>
+                  <p className="mt-2 text-xs text-blue-700 dark:text-blue-300">PNG, JPG, GIF, WebP up to 10MB • Fast CDN delivery via Cloudinary</p>
                 </div>
               </div>
 
@@ -641,7 +712,7 @@ export default function AdminProductsPage() {
 
             <div className="mt-4 p-3 bg-blue-100 dark:bg-blue-900/30 rounded border border-blue-300 dark:border-blue-700">
               <p className="text-xs text-blue-900 dark:text-blue-100">
-                <strong>🔒 Private Hosting:</strong> Images uploaded here are stored on your server in <code className="bg-blue-200 dark:bg-blue-800 px-1 rounded text-xs font-mono">/public/private-images</code>. They&apos;re served through your domain at <code className="bg-blue-200 dark:bg-blue-800 px-1 rounded text-xs font-mono">/api/admin/private-images/[filename]</code>
+                <strong>☁️ Cloud Hosting:</strong> Images are securely stored on Cloudinary in the <code className="bg-blue-200 dark:bg-blue-800 px-1 rounded text-xs font-mono">flanagan-products</code> folder. They are delivered via Cloudinary&apos;s global CDN with automatic optimization and responsive image support.
               </p>
             </div>
           </div>
