@@ -2,9 +2,15 @@ import { NextResponse, NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { withAdminAuth } from "@/lib/api-middleware";
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+// Lazy initialization - only create client when needed
+function getAnthropicClient() {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    throw new Error("ANTHROPIC_API_KEY environment variable is not set. Please add it to your Vercel environment variables.");
+  }
+  return new Anthropic({
+    apiKey: process.env.ANTHROPIC_API_KEY,
+  });
+}
 
 interface OptimizeRequest {
   title: string;
@@ -21,6 +27,17 @@ async function handlePOST(request: NextRequest) {
       return NextResponse.json(
         { error: "Product title is required" },
         { status: 400 }
+      );
+    }
+
+    // Initialize Anthropic client
+    let anthropic;
+    try {
+      anthropic = getAnthropicClient();
+    } catch (error: any) {
+      return NextResponse.json(
+        { error: error.message || "AI service not configured" },
+        { status: 503 }
       );
     }
 
