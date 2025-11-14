@@ -115,7 +115,7 @@ async function handleGET(request: NextRequest) {
     }
 
     // Recent orders
-    const recentOrders = await prisma.order.findMany({
+    const recentOrdersRaw = await prisma.order.findMany({
       where: {
         createdAt: { gte: startDate },
       },
@@ -131,6 +131,19 @@ async function handleGET(request: NextRequest) {
       },
       take: 10,
     });
+
+    // Format recent orders with customer data
+    const recentOrders = recentOrdersRaw.map((order) => ({
+      id: order.id,
+      orderNumber: order.id.slice(-8).toUpperCase(),
+      total: order.totalAmount,
+      status: order.status,
+      createdAt: order.createdAt.toISOString(),
+      customer: {
+        name: order.customerName,
+        email: order.customerEmail,
+      },
+    }));
 
     // Calculate profit (if basePrice is available)
     const ordersWithProfit = await prisma.order.findMany({
@@ -174,7 +187,7 @@ async function handleGET(request: NextRequest) {
       ordersByStatus: ordersByStatus || [],
       topProducts: topProductsWithDetails || [],
       dailyRevenue: dailyRevenue || [],
-      recentOrders: recentOrders ? recentOrders.slice(0, 5) : [],
+      recentOrders: recentOrders.slice(0, 5),
     });
   } catch (error) {
     console.error('Error fetching analytics:', error);
