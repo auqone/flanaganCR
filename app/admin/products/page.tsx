@@ -423,12 +423,12 @@ export default function AdminProductsPage() {
         </div>
 
         <p className="text-sm text-purple-800 dark:text-purple-200 mb-4">
-          Paste your AliExpress product data and let AI generate viral longtail keywords, SEO-optimized titles, and conversion-focused descriptions!
+          Paste your product data and let AI generate viral longtail keywords, SEO-optimized titles, and conversion-focused descriptions!
         </p>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">AliExpress Title</label>
+            <label className="block text-sm font-medium mb-2">Product Title</label>
             <input
               type="text"
               value={aliExpressData.title}
@@ -439,18 +439,18 @@ export default function AdminProductsPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">AliExpress Description (optional)</label>
+            <label className="block text-sm font-medium mb-2">Product Description (optional)</label>
             <textarea
               value={aliExpressData.description}
               onChange={(e) => setAliExpressData({ ...aliExpressData, description: e.target.value })}
-              placeholder="Paste the product description from AliExpress..."
+              placeholder="Paste the product description..."
               rows={3}
               className="w-full px-4 py-3 rounded-md border border-purple-300 dark:border-purple-700 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">AliExpress Features (optional, one per line)</label>
+            <label className="block text-sm font-medium mb-2">Product Features (optional, one per line)</label>
             <textarea
               value={aliExpressData.features}
               onChange={(e) => setAliExpressData({ ...aliExpressData, features: e.target.value })}
@@ -556,7 +556,7 @@ export default function AdminProductsPage() {
             <div className="grid md:grid-cols-3 gap-4">
               <div>
                 <label htmlFor="basePrice" className="block text-sm font-medium mb-2">
-                  Base Price (AliExpress) <span className="text-red-500">*</span>
+                  Base Price <span className="text-red-500">*</span>
                 </label>
                 <input
                   id="basePrice"
