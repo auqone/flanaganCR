@@ -18,7 +18,7 @@ async function handleGET(request: NextRequest) {
         createdAt: { gte: startDate },
       },
       _sum: {
-        totalAmount: true,
+        total: true,
       },
     });
 
@@ -49,7 +49,7 @@ async function handleGET(request: NextRequest) {
 
     // Average order value
     const avgOrderValue = totalOrders > 0
-      ? (totalRevenue._sum.totalAmount || 0) / totalOrders
+      ? (totalRevenue._sum.total || 0) / totalOrders
       : 0;
 
     // Top selling products
@@ -101,7 +101,7 @@ async function handleGET(request: NextRequest) {
       dailyRevenue = await prisma.$queryRaw`
         SELECT
           DATE("createdAt") as date,
-          CAST(SUM("totalAmount") AS DECIMAL(10,2)) as revenue,
+          CAST(SUM("total") AS DECIMAL(10,2)) as revenue,
           CAST(COUNT(*) AS INTEGER) as orders
         FROM "Order"
         WHERE "status" IN ('PAID', 'PROCESSING', 'ORDERED_SUPPLIER', 'SHIPPED', 'DELIVERED')
@@ -120,6 +120,12 @@ async function handleGET(request: NextRequest) {
         createdAt: { gte: startDate },
       },
       include: {
+        customer: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
         orderItems: {
           include: {
             product: true,
@@ -135,13 +141,13 @@ async function handleGET(request: NextRequest) {
     // Format recent orders with customer data
     const recentOrders = recentOrdersRaw.map((order) => ({
       id: order.id,
-      orderNumber: order.id.slice(-8).toUpperCase(),
-      total: order.totalAmount,
+      orderNumber: order.orderNumber,
+      total: order.total,
       status: order.status,
       createdAt: order.createdAt.toISOString(),
       customer: {
-        name: order.customerName,
-        email: order.customerEmail,
+        name: order.customer.name,
+        email: order.customer.email,
       },
     }));
 
@@ -178,7 +184,7 @@ async function handleGET(request: NextRequest) {
     return NextResponse.json({
       period: periodDays,
       summary: {
-        totalRevenue: Number(totalRevenue._sum.totalAmount) || 0,
+        totalRevenue: Number(totalRevenue._sum.total) || 0,
         totalOrders: totalOrders || 0,
         totalCustomers: totalCustomers || 0,
         avgOrderValue: Number(avgOrderValue) || 0,

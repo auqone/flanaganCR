@@ -78,25 +78,43 @@ export async function POST(request: NextRequest) {
         }
       }
 
+      // Create or find customer
+      let customer = await prisma.customer.findUnique({
+        where: { email: session.customer_details?.email || '' },
+      });
+
+      if (!customer) {
+        customer = await prisma.customer.create({
+          data: {
+            email: session.customer_details?.email || '',
+            name: session.customer_details?.name || '',
+          },
+        });
+      }
+
       // Create order in database
+      const totalAmount = (session.amount_total || 0) / 100;
+      const discount = discountAmount || 0;
+      const subtotalAmount = totalAmount - discount;
+
       const order = await prisma.order.create({
         data: {
+          customerId: customer.id,
+          orderNumber: `ORD-${Date.now()}`,
           stripePaymentId: session.id,
-          stripePaymentIntentId: session.payment_intent as string,
-          customerEmail: session.customer_details?.email || '',
-          customerName: session.customer_details?.name || '',
-          totalAmount: (session.amount_total || 0) / 100,
-          couponCode: couponCode || null,
-          discountAmount: discountAmount,
+          paymentStatus: 'PAID',
           status: 'PAID',
-          shippingAddress: {
-            line1: fullSession.customer_details?.address?.line1 || '',
-            line2: fullSession.customer_details?.address?.line2 || '',
-            city: fullSession.customer_details?.address?.city || '',
-            state: fullSession.customer_details?.address?.state || '',
-            postalCode: fullSession.customer_details?.address?.postal_code || '',
-            country: fullSession.customer_details?.address?.country || '',
-          },
+          subtotal: subtotalAmount,
+          total: totalAmount,
+          shippingName: session.customer_details?.name || '',
+          shippingEmail: session.customer_details?.email || '',
+          shippingPhone: session.customer_details?.phone || '',
+          shippingAddress: fullSession.customer_details?.address?.line1 || '',
+          shippingCity: fullSession.customer_details?.address?.city || '',
+          shippingState: fullSession.customer_details?.address?.state || '',
+          shippingZip: fullSession.customer_details?.address?.postal_code || '',
+          shippingCountry: fullSession.customer_details?.address?.country || 'United States',
+          paymentMethod: 'stripe',
         }
       });
 
@@ -134,7 +152,7 @@ export async function POST(request: NextRequest) {
                   <h1>Order Confirmed!</h1>
                 </div>
                 <div class="content">
-                  <p>Hi ${escapeHtml(session.customer_details?.name) || "there"},</p>
+                  <p>Hi ${escapeHtml(session.customer_details?.name || "there")},</p>
                   <p>Thank you for your order! We're excited to get your items to you.</p>
 
                   <div class="order-details">

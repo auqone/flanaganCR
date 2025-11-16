@@ -107,8 +107,8 @@ async function handlePUT(
       try {
         await resend.emails.send({
           from: "Flanagan Crafted Naturals <orders@resend.dev>",
-          to: order.customerEmail,
-          subject: `Your order ${order.id} has shipped!`,
+          to: order.shippingEmail,
+          subject: `Your order ${order.orderNumber} has shipped!`,
           html: `
             <!DOCTYPE html>
             <html>
@@ -131,12 +131,12 @@ async function handlePUT(
                     <h1 style="margin: 10px 0 0 0;">Your Order Has Shipped! 📦</h1>
                   </div>
                   <div class="content">
-                    <p>Hi ${escapeHtml(order.customerName)},</p>
+                    <p>Hi ${escapeHtml(order.shippingName)},</p>
                     <p>Great news! Your order from <strong>Flanagan Crafted Naturals</strong> has been shipped and is on its way to you.</p>
 
                     <div class="tracking">
                       <h3>Tracking Information</h3>
-                      <p><strong>Order Number:</strong> ${escapeHtml(order.id)}</p>
+                      <p><strong>Order Number:</strong> ${escapeHtml(order.orderNumber)}</p>
                       <p><strong>Tracking Number:</strong> ${escapeHtml(data.trackingNumber)}</p>
                       ${data.trackingUrl ? `
                         <a href="${escapeHtml(data.trackingUrl)}" class="button">Track Your Package</a>
@@ -145,17 +145,16 @@ async function handlePUT(
 
                     <p><strong>Shipping Address:</strong></p>
                     <p>
-                      ${escapeHtml(order.customerName)}<br>
-                      ${escapeHtml((order.shippingAddress as any).line1)}<br>
-                      ${(order.shippingAddress as any).line2 ? `${escapeHtml((order.shippingAddress as any).line2)}<br>` : ''}
-                      ${escapeHtml((order.shippingAddress as any).city)}, ${escapeHtml((order.shippingAddress as any).state)} ${escapeHtml((order.shippingAddress as any).postalCode)}<br>
-                      ${escapeHtml((order.shippingAddress as any).country)}
+                      ${escapeHtml(order.shippingName)}<br>
+                      ${escapeHtml(order.shippingAddress)}<br>
+                      ${escapeHtml(order.shippingCity)}, ${escapeHtml(order.shippingState)} ${escapeHtml(order.shippingZip)}<br>
+                      ${escapeHtml(order.shippingCountry)}
                     </p>
 
                     <p><strong>Items Ordered:</strong></p>
                     <ul>
                       ${order.orderItems.map((item: any) => `
-                        <li>${escapeHtml(item.productName)} × ${item.quantity}</li>
+                        <li>${escapeHtml(item.product.name)} × ${item.quantity}</li>
                       `).join('')}
                     </ul>
 

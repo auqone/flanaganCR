@@ -68,36 +68,44 @@ model Customer {
 // Order model - tracks all orders
 model Order {
   id                  String      @id @default(cuid())
+  orderNumber         String
 
-  // Customer information (simplified for webhook)
-  customerId          String?
-  customer            Customer?   @relation(fields: [customerId], references: [id])
-  customerEmail       String
-  customerName        String
+  // Customer information
+  customerId          String
+  customer            Customer    @relation(fields: [customerId], references: [id])
 
   // Order details
   orderItems          OrderItem[]
   status              OrderStatus @default(PENDING)
-  totalAmount         Float
-  couponCode          String?     // Coupon code used (if any)
-  discountAmount      Float?      // Actual discount applied
+  subtotal            Float
+  shippingCost        Float       @default(0)
+  tax                 Float       @default(0)
+  total               Float
+  paymentStatus       PaymentStatus @default(PENDING)
+  paymentMethod       String?
 
   // Payment information
-  stripePaymentId         String?     @unique // Stripe session ID
-  stripePaymentIntentId   String?     // Stripe payment intent ID
+  stripePaymentId     String?     @unique
 
-  // Shipping information (JSON for flexibility)
-  shippingAddress     Json
+  // Shipping information
+  shippingName        String
+  shippingEmail       String
+  shippingPhone       String?
+  shippingAddress     String
+  shippingCity        String
+  shippingState       String
+  shippingZip         String
+  shippingCountry     String      @default("United States")
 
   // Fulfillment tracking
   trackingNumber      String?
   trackingUrl         String?
-  aliexpressOrderId   String?     // Reference to AliExpress order for dropshipping
-  aliexpressOrderUrl  String?     // Direct link to AliExpress order
+  aliexpressOrderId   String?
+  aliexpressOrderUrl  String?
 
   // Notes
   customerNotes       String?     @db.Text
-  adminNotes          String?     @db.Text // Internal notes for admin
+  adminNotes          String?     @db.Text
 
   // Timestamps
   createdAt           DateTime    @default(now())
@@ -106,11 +114,9 @@ model Order {
   deliveredAt         DateTime?
 
   @@index([customerId])
-  @@index([customerEmail])
   @@index([status])
   @@index([stripePaymentId])
   @@index([createdAt])
-  @@index([couponCode])
 }
 
 // OrderItem model - individual items within an order
