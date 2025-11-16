@@ -9,6 +9,7 @@ interface ProductFormData {
   basePrice: string;
   discount: string;
   finalPrice: string;
+  slashedPrice?: number;
   image: string;
   category: string;
   rating: string;
@@ -337,6 +338,9 @@ export default function AdminProductsPage() {
       const productData = {
         name: formData.name,
         price: parseFloat(formData.finalPrice),
+        basePrice: formData.basePrice ? parseFloat(formData.basePrice) : undefined,
+        discount: formData.discount ? parseFloat(formData.discount) : 0,
+        slashedPrice: formData.slashedPrice || undefined,
         image: formData.image,
         category: formData.category,
         rating: parseFloat(formData.rating),
@@ -368,6 +372,7 @@ export default function AdminProductsPage() {
         basePrice: "",
         discount: "0",
         finalPrice: "",
+        slashedPrice: undefined,
         image: "",
         category: "Jellies",
         rating: "4.5",
@@ -599,6 +604,39 @@ export default function AdminProductsPage() {
                   className="w-full px-4 py-3 rounded-md border border-green-300 bg-green-50 dark:bg-green-900/30 dark:border-green-700 font-bold text-green-700 dark:text-green-300"
                 />
               </div>
+            </div>
+          </div>
+
+          {/* Slashed Price Section */}
+          <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-4">
+              <DollarSign className="w-5 h-5 text-purple-600" />
+              <h3 className="font-semibold text-purple-900 dark:text-purple-100">Slashed Price (Optional)</h3>
+            </div>
+
+            <p className="text-sm text-purple-800 dark:text-purple-200 mb-4">
+              Enter the original/list price to display a strikethrough effect on product pages, creating the perception of a discount.
+            </p>
+
+            <div>
+              <label htmlFor="slashedPrice" className="block text-sm font-medium mb-2">
+                Slashed Price
+              </label>
+              <input
+                id="slashedPrice"
+                type="number"
+                step="0.01"
+                min="0"
+                value={formData.slashedPrice || ''}
+                onChange={(e) => setFormData({ ...formData, slashedPrice: e.target.value ? parseFloat(e.target.value) : undefined })}
+                placeholder="Optional - Leave empty for no strikethrough"
+                className="w-full px-4 py-3 rounded-md border border-[var(--border)] bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+              />
+              {formData.slashedPrice && formData.slashedPrice > parseFloat(formData.finalPrice) && (
+                <p className="text-sm text-purple-600 dark:text-purple-400 mt-2">
+                  ✓ Shows <span className="line-through">${formData.slashedPrice.toFixed(2)}</span> <span className="font-bold">${parseFloat(formData.finalPrice).toFixed(2)}</span>
+                </p>
+              )}
             </div>
           </div>
 

@@ -9,6 +9,7 @@ interface Product {
   id: string;
   name: string;
   price: number;
+  slashedPrice?: number;
   image: string;
   category: string;
   rating: number;
@@ -48,7 +49,14 @@ function ProductCard({ product }: { product: Product }) {
           <span>{product.rating}</span>
         </div>
         <div className="mt-auto flex items-center justify-between pt-4">
-          <span className="text-lg font-semibold">${product.price}</span>
+          <div className="flex items-center gap-2">
+            {product.slashedPrice && product.slashedPrice > product.price && (
+              <span className="text-sm font-medium text-gray-400 line-through">
+                ${product.slashedPrice.toFixed(2)}
+              </span>
+            )}
+            <span className="text-lg font-semibold text-green-600">${product.price.toFixed(2)}</span>
+          </div>
           <button
             onClick={handleAddToCart}
             className="rounded bg-green-600 px-2 py-1 text-[10px] font-medium text-white hover:bg-green-700 transition-colors"

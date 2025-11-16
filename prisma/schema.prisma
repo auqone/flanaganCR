@@ -15,6 +15,7 @@ model Product {
   id              String      @id @default(cuid())
   name            String
   price           Float       // Final selling price to customer
+  slashedPrice    Float?      // Original/list price for strikethrough effect (creates perceived discount)
   basePrice       Float?      // Cost from AliExpress (for profit tracking)
   discount        Float?      // Discount percentage (replaces profitMargin)
   image           String

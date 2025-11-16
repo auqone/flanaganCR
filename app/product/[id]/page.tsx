@@ -97,8 +97,13 @@ export default async function ProductPage({
                 <span className="text-sm text-gray-500">({product.reviews} reviews)</span>
               </div>
 
-              <div className="mt-6">
-                <span className="text-4xl font-bold">${product.price}</span>
+              <div className="mt-6 flex items-center gap-4">
+                {product.slashedPrice && product.slashedPrice > product.price && (
+                  <span className="text-2xl font-semibold text-gray-400 line-through">
+                    ${product.slashedPrice.toFixed(2)}
+                  </span>
+                )}
+                <span className="text-4xl font-bold text-green-600">${product.price.toFixed(2)}</span>
               </div>
 
               <p className="mt-6 text-gray-600 dark:text-gray-400">
